@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Examine;
+using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;

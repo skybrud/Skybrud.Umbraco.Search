@@ -2,7 +2,7 @@
 using Examine;
 using Skybrud.Umbraco.Search.Options;
 
-namespace Skybrud.Umbraco.Search {
+namespace Skybrud.Umbraco.Search.Models {
 
     public class SkybrudSearchResults {
 
