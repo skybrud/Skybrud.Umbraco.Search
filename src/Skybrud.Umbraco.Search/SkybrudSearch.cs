@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Examine;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;
+using Umbraco.Core.Logging;
 
 namespace Skybrud.Umbraco.Search {
 
     public class SkybrudSearch {
 
         private readonly IExamineManager _examine;
+        private readonly ILogger _logger;
 
         #region Constructors
 
-        public SkybrudSearch(IExamineManager examine) {
+        public SkybrudSearch(IExamineManager examine, ILogger logger) {
             _examine = examine;
+            _logger = logger;
         }
 
         #endregion
@@ -24,6 +28,9 @@ namespace Skybrud.Umbraco.Search {
         #region Member methods
 
         public SkybrudSearchResults Search(ISearchOptions options) {
+
+            // Start measuring the elapsed time
+            Stopwatch sw = Stopwatch.StartNew();
 
             // Get the searcher from the options
             ISearcher searcher = options.Searcher;
@@ -55,12 +62,19 @@ namespace Skybrud.Umbraco.Search {
             // If "options" implements implement the interface, the results are paginated
             if (options is IOffsetOptions o) results = results.Skip(o.Offset).Take(o.Limit);
 
+            sw.Stop();
+
+            if (options.IsDebug) {
+                _logger.Debug<SkybrudSearch>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
+            }
+
             // Wrap the results
-            return new SkybrudSearchResults(options, total, results);
+            return new SkybrudSearchResults(options, query, total, results);
 
         }
 
         #endregion
 
     }
+
 }

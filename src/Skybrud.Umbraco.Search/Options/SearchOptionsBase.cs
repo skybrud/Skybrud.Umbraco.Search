@@ -35,6 +35,11 @@ namespace Skybrud.Umbraco.Search.Options {
         /// </summary>
         public bool DisableHideFromSearch { get; set; }
 
+        /// <summary>
+        /// Gets whether the search should be performed in debug mode.
+        /// </summary>
+        public bool IsDebug { get; set; }
+
         #endregion
 
         #region Constructors

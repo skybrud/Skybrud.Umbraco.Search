@@ -8,12 +8,18 @@ namespace Skybrud.Umbraco.Search.Models {
 
         public ISearchOptions Options { get; }
 
+        public bool IsDebug { get; }
+
+        public string Query { get; }
+
         public long Total { get; }
 
         public IEnumerable<ISearchResult> Results { get; }
 
-        public SkybrudSearchResults(ISearchOptions options, long total, IEnumerable<ISearchResult> results) {
+        public SkybrudSearchResults(ISearchOptions options, string query, long total, IEnumerable<ISearchResult> results) {
             Options = options;
+            IsDebug = options.IsDebug;
+            Query = query;
             Total = total;
             Results = results;
         }
