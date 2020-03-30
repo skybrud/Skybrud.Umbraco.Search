@@ -21,9 +21,6 @@ namespace Skybrud.Umbraco.Search {
             // Make the initial search in Examine
             IEnumerable<SearchResult> results = SearchExamine(options, out int total);
 
-            if (options is IHideProtectedOptions hide && hide.HideProtected){
-                results = results.Where(x => !hide.IsProtected(x));
-            }
 
             return new GroupedSearchResults(options, results, total);
 
