@@ -1,17 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net45</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>2.0.0-beta001</Version>
+    <Company>Skybrud.dk</Company>
+    <Description>Skybrud Search module for Umbraco.</Description>
+    <Copyright>Copyright © 2020</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Skybrud.Umbraco.Search</PackageId>
+    <PackageTags>Skybrud, Umbraco, Search</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIconUrl>http://www.skybrud.dk/img/5431sk/icon/favicon.ico</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skybrud.Essentials" Version="1.1.18" />
-    <PackageReference Include="UmbracoCms.Core" Version="8.3.0" />
-    <PackageReference Include="UmbracoCms.Web" Version="8.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Configuration" />
+    <PackageReference Include="Skybrud.Essentials" Version="1.1.16" />
+    <PackageReference Include="UmbracoCms.Core" Version="7.6.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

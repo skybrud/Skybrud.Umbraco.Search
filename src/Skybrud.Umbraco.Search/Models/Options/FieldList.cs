@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lucene.Net.QueryParsers;
 
-namespace Skybrud.Umbraco.Search.Options.Fields {
+namespace Skybrud.Umbraco.Search.Models.Options {
 
     public class FieldList : IEnumerable<Field> {
         
@@ -34,15 +34,17 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
             var fieldOptions = new List<Field>();
             foreach (var fieldName in fields)
             {
-                fieldOptions.Add(new Field(fieldName));
+                fieldOptions.Add(Field.GetFromString(fieldName));
             }
             _fields = fieldOptions;
         }
 
-        private FieldList(string[] fields, int?[] boosts, float?[] fuzzies) {
+        private FieldList(string[] fields, int?[] boosts, float?[] fuzzies)
+        {
             var fieldOptions = new List<Field>();
-            for (int i = 0; i < fields.Length; i++) {
-                fieldOptions.Add(new Field(fields[i], boosts[i], fuzzies[i]));
+            for (int i = 0; i < fields.Length; i++)
+            {
+                fieldOptions.Add(Field.GetFieldOption(fields[i], boosts[i], fuzzies[i]));
             }
             _fields = fieldOptions;
         }
@@ -84,40 +86,54 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
             _fields.AddRange(fields);
         }
 
-        public virtual string GetQuery(string[] terms) {
-
-            List<string> searchTerms = new List<string>();
-
-            foreach (string term in terms) {
-
+        public virtual string GetQuery(string[] terms)
+        {
+            var searchTerms = new List<string>();
+            foreach (var term in terms)
+            {
                 string escapedTerm = QueryParser.Escape(term);
                 string t = "(";
 
-                if (IsValid) {
-                    
+                if (IsValid)
+                {
                     // Boost
-                    if (HasBoostValues) {
-                        t += string.Join(" OR ", _fields.Where(x => x.Boost != null).Select(fieldOption => string.Format("{0}:({1} {1}*)^{2}", fieldOption.FieldName, escapedTerm, fieldOption.Boost.ToString())).ToArray());
+                    if (HasBoostValues)
+                    {
+                        t += string.Join(" OR ",
+                            _fields.Where(x => x.Boost != null).Select(
+                                fieldOption => string.Format(
+                                        "{0}:({1} {1}*)^{2}",
+                                        fieldOption.FieldName,
+                                        escapedTerm,
+                                        fieldOption.Boost.ToString())).ToArray());
                         t += " OR ";
                     }
 
                     // Fuzzy
-                    if (HasFuzzyValues) {
-                        t += string.Join(" OR ", _fields.Where(x => x.Fuzz != null && x.Fuzz > 0 && x.Fuzz < 1).Select(fieldOption => string.Format("{0}:{1}~{2}", fieldOption.FieldName, escapedTerm, fieldOption.Fuzz.ToString())).ToArray());
+                    if (HasFuzzyValues)
+                    {
+                        t += string.Join(" OR ",
+                            _fields.Where(x => x.Fuzz != null && x.Fuzz > 0 && x.Fuzz < 1).Select(
+                                fieldOption => string.Format(
+                                    "{0}:{1}~{2}",
+                                    fieldOption.FieldName,
+                                    escapedTerm,
+                                    fieldOption.Fuzz.ToString())).ToArray());
+
                         t += " OR ";
                     }
 
                     // Add regular search
-                    t += string.Join(" OR ", _fields.Select(fieldOption => string.Format("{1}:({0} {0}*)", escapedTerm, fieldOption.FieldName)).ToArray());
+                    t += string.Join(" OR ",
+                        _fields.Select(
+                                fieldOption => string.Format("{1}:({0} {0}*)", escapedTerm, fieldOption.FieldName)
+                                ).ToArray());
                 }
 
                 t += ")";
                 searchTerms.Add(t);
-
             }
-
             return string.Join(" AND ", searchTerms.ToArray());
-
         }
         
         public IEnumerator<Field> GetEnumerator() {
@@ -129,7 +145,6 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
         }
 
         #endregion
-
     }
 
 }

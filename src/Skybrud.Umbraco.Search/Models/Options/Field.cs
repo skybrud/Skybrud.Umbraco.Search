@@ -1,5 +1,5 @@
-﻿namespace Skybrud.Umbraco.Search.Options.Fields {
-
+﻿namespace Skybrud.Umbraco.Search.Models.Options
+{
     public class Field {
         
         #region Properties
@@ -20,15 +20,22 @@
             Fuzz = null;
         }
 
-        public Field(string fieldName, int? boost) {
-            FieldName = fieldName;
-            Boost = boost;
-        }
-
-        public Field(string fieldName, int? boost, float? fuzz) {
+        public Field(string fieldName, int? boost = null, float? fuzz = null) {
             FieldName = fieldName;
             Boost = boost;
             Fuzz = fuzz;
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        public static Field GetFromString(string fieldName) {
+            return new Field(fieldName);
+        }
+
+        public static Field GetFieldOption(string fieldName, int? boost, float? fuzz) {
+            return new Field(fieldName, boost, fuzz);
         }
 
         #endregion

@@ -1,13 +1,11 @@
-﻿using Examine;
-
-namespace Skybrud.Umbraco.Search.Options  {
+﻿namespace Skybrud.Umbraco.Search.Options  {
 
     public interface ISearchOptions {
 
         /// <summary>
-        /// Gets a reference to the searcher to be used for the search.
+        /// Gets or sets the alias of the alias of the Examine searcher to be used.
         /// </summary>
-        ISearcher Searcher { get; }
+        string ExamineSearcher { get; set; }
 
         /// <summary>
         /// Gets the raw query for the search.
@@ -16,5 +14,4 @@ namespace Skybrud.Umbraco.Search.Options  {
         string GetRawQuery();
 
     }
-
 }

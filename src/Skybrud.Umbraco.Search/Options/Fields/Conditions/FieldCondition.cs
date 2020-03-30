@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Examine;
 
 namespace Skybrud.Umbraco.Search.Options.Fields.Conditions {
@@ -56,17 +55,17 @@ namespace Skybrud.Umbraco.Search.Options.Fields.Conditions {
 
         public bool IsMatch(SearchResult result) {
 
-            string[] values = result.GetValues(Alias).ToArray();
-            
-            if (values.Length == 0) return false;
+            result.Fields.TryGetValue(Alias, out string value);
+
+            if (string.IsNullOrWhiteSpace(value)) return false;
 
             switch (Type) {
 
                 case FieldConditionType.Equals:
-                    return values.Any(x => x.Equals(Value));
+                    return value.Equals(Value);
 
                 case FieldConditionType.Contains:
-                    return values.Any(x => x.Contains(Value));
+                    return value.Contains(Value);
 
                 default:
                     throw new Exception("Unknown condition type: " + Type);
