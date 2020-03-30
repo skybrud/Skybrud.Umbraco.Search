@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Examine;
 using Skybrud.Essentials.Common;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options.Groups;
-using Skybrud.Umbraco.Search.Options.Protected;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -19,12 +15,15 @@ namespace Skybrud.Umbraco.Search {
             if (options.Groups == null) throw new PropertyNotSetException(nameof(options));
 
             // Make the initial search in Examine
-            IEnumerable<SearchResult> results = SearchExamine(options, out int total);
+            var results = SearchExamine(options, out int total);
 
+            // Wrap the results
+            GroupedSearchResults result = new GroupedSearchResults(options, results, total);
 
-            return new GroupedSearchResults(options, results, total);
+            return result;
 
         }
 
     }
+
 }

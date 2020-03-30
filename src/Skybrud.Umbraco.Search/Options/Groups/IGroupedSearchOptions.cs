@@ -7,6 +7,11 @@
         /// </summary>
         SearchGroupList Groups { get; }
 
+        /// <summary>
+        /// Gets or sets the method used for determining the groups each result belongs to.
+        /// </summary>
+        SearchGroupMethod GroupMethod { get; }
+
     }
 
 }

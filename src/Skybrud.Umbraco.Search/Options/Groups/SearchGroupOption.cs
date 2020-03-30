@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Examine;
 using Skybrud.Essentials.Strings.Extensions;
@@ -48,6 +49,15 @@ namespace Skybrud.Umbraco.Search.Options.Groups {
         #endregion
 
         #region Constructors
+
+        public SearchGroupOption(int id, string name) {
+            Id = id;
+            Name = name;
+            ContentTypes = new string[0];
+            ParentIds = new int[0];
+            FieldConditions = new FieldConditionList();
+            Type = SearchGroupType.Default;
+        }
 
         public SearchGroupOption(int id, string name, string[] contentTypes, int parentId) {
             Id = id;
@@ -112,7 +122,7 @@ namespace Skybrud.Umbraco.Search.Options.Groups {
         /// </summary>
         /// <param name="result">The result to check.</param>
         /// <returns><c>true</c> if the result is a match, otherwise <c>false</c>.</returns>
-        public bool IsMatch(SearchResult result) {
+        public virtual bool IsMatch(SearchResult result) {
 
             if (ContentTypes.Length > 0 && result.Fields.TryGetValue("nodeTypeAlias", out string nodeTypeAlias)) {
                 if (ContentTypes.Contains(nodeTypeAlias) == false) return false;

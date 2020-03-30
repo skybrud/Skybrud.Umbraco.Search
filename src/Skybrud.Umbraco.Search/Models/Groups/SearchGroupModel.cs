@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Examine;
 using Newtonsoft.Json;
 using Skybrud.Umbraco.Search.Options.Groups;
@@ -7,6 +6,14 @@ using Skybrud.Umbraco.Search.Options.Groups;
 namespace Skybrud.Umbraco.Search.Models.Groups {
 
     public class SearchGroupModel {
+
+        private readonly int _count;
+
+        /// <summary>
+        /// Gets a reference to the <see cref="ISearchGroup"/> this model is based on.
+        /// </summary>
+        [JsonIgnore]
+        public ISearchGroup Group { get; }
 
         /// <summary>
         /// Gets the numeric ID of the group. 
@@ -19,16 +26,9 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         /// </summary>
         [JsonProperty("name")]
         public string Name { get; }
-
-        /// <summary>
-        /// Gets the name of the group.
-        /// </summary>
-        [JsonProperty("groupTitle")]
-        [Obsolete("Use Name instead.")]
-        public string GroupTitle => Name;
-
+        
         [JsonProperty("count")]
-        public int Count => Results.Count;
+        public int Count => Results?.Count ?? _count;
 
         [JsonProperty("selected")]
         public bool IsSelected { get; }
@@ -37,10 +37,18 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         public List<SearchResult> Results { get; }
 
         public SearchGroupModel(ISearchGroup group) {
+            Group = group;
             Id = group.Id;
             Name = group.Name;
             IsSelected = group.IsSelected;
             Results = new List<SearchResult>();
+        }
+
+        public SearchGroupModel(SearchGroup group, bool selected) {
+            Id = group.Id;
+            Name = group.Name;
+            IsSelected = selected;
+            _count = group.Count;
         }
 
     }

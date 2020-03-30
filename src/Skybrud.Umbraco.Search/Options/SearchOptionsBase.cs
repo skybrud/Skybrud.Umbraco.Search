@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Lucene.Net.Analysis;
-using Lucene.Net.QueryParsers;
 using Skybrud.Umbraco.Search.Models.Options;
 using Umbraco.Core;
 
@@ -31,11 +30,6 @@ namespace Skybrud.Umbraco.Search.Options {
         /// </summary>
         public int[] RootIds { get; set; }
 
-        /// <summary>
-        /// Gets or sets the content types the returned results should match.
-        /// </summary>
-        public ContentTypeList ContentTypes { get; set; }
-
         public int Offset { get; set; }
 
         public int Limit { get; set; }
@@ -53,7 +47,6 @@ namespace Skybrud.Umbraco.Search.Options {
             ExamineSearcher = Constants.Examine.ExternalSearcher;
             Text = string.Empty;
             RootIds = null;
-            ContentTypes = new ContentTypeList();
             TextFields = new FieldList();
         }
 
@@ -78,18 +71,15 @@ namespace Skybrud.Umbraco.Search.Options {
 
         }
 
-        protected virtual void SearchType(List<string> query) {
-            if (ContentTypes == null || ContentTypes.Count == 0) return;
-            query.Add($"nodeTypeAlias:({string.Join(" ", ContentTypes.Select(a => $"\"{QueryParser.Escape(a)}\"").ToArray())})");
-        }
+        protected virtual void SearchType(List<string> query) { }
 
         protected virtual void SearchText(List<string> query) {
 
             if (string.IsNullOrWhiteSpace(Text)) return;
 
-            Text = Regex.Replace(Text, @"[^\wæøåÆØÅ\- ]", string.Empty).ToLowerInvariant().Trim();
+            string text = Regex.Replace(Text, @"[^\wæøåÆØÅ\-@\. ]", string.Empty).ToLowerInvariant().Trim();
 
-            string[] terms = Text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] terms = text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
             // fjerner stop-ord fra søgetermen
             terms = terms.Where(x => !StopAnalyzer.ENGLISH_STOP_WORDS_SET.Contains(x.ToLower())).ToArray();
