@@ -5,7 +5,7 @@ using Examine;
 
 namespace Skybrud.Umbraco.Search {
 
-    public static partial class SkybrudSearchUtils {
+    public static partial class SearchUtils {
 
         public static class Sorting {
 

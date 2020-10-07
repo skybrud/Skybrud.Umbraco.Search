@@ -14,14 +14,14 @@ using Umbraco.Core.Logging;
 
 namespace Skybrud.Umbraco.Search {
 
-    public class SkybrudSearch {
+    public class SearchHelper {
 
         private readonly IExamineManager _examine;
         private readonly ILogger _logger;
 
         #region Constructors
 
-        public SkybrudSearch(IExamineManager examine, ILogger logger) {
+        public SearchHelper(IExamineManager examine, ILogger logger) {
             _examine = examine;
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace Skybrud.Umbraco.Search {
 
         #region Member methods
 
-        public SkybrudSearchResults Search(ISearchOptions options) {
+        public virtual SkybrudSearchResults Search(ISearchOptions options) {
 
             // Start measuring the elapsed time
             Stopwatch sw = Stopwatch.StartNew();
@@ -68,7 +68,7 @@ namespace Skybrud.Umbraco.Search {
             sw.Stop();
 
             if (options.IsDebug) {
-                _logger.Debug<SkybrudSearch>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
+                _logger.Debug<SearchHelper>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
             }
 
             // Wrap the results
@@ -82,7 +82,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="request">The request the search should be based on.</param>
         /// <param name="groups">An array of groups to used for the search.</param>
         /// <returns>An instance of <see cref="GroupedSearchResult"/>.</returns>
-        public GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups) {
+        public virtual GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups) {
 
             int[] selectedGroups = request.QueryString["groups"].ToInt32Array();
 
@@ -94,6 +94,19 @@ namespace Skybrud.Umbraco.Search {
 
             return new GroupedSearchResult(result);
 
+        }
+
+        public virtual DateTime GetSortValueByDateTime(ISearchResult result, string propertyAlias) {
+            return SearchUtils.Sorting.GetSortValueByDateTime(result, propertyAlias);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="DateTime"/> parsed from the <c>contentDate</c> field, or <c>createDate</c> if nothing else is specified.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>An instance of <see cref="DateTime"/>.</returns>
+        public virtual DateTime GetSortValueByContentDate(ISearchResult result) {
+            return SearchUtils.Sorting.GetSortValueByContentDate(result);
         }
 
         #endregion
