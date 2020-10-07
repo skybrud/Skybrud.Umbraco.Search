@@ -10,6 +10,8 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
         private readonly List<Field> _fields;
 
         #region Properties
+
+        public int Count => _fields?.Count ?? 0;
         
         public bool HasBoostValues {
             get { return _fields.Any(x => x.Boost != null && x.Boost != 0); }
@@ -20,6 +22,8 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
         }
 
         public bool IsValid => _fields != null && _fields.Any();
+
+        public bool IsEmpty => Count == 0;
 
         #endregion
 

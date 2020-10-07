@@ -80,9 +80,11 @@ namespace Skybrud.Umbraco.Search.Options {
             string text = Regex.Replace(Text, @"[^\wæøåÆØÅ\-@\. ]", string.Empty).ToLowerInvariant().Trim();
 
             string[] terms = text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            if (terms.Length == 0) return;
 
             // fallback if no fields are added
             TextFields = TextFields ?? FieldList.GetFromStringArray(new[] { "nodeName_lci", "contentTeasertext_lci", "contentBody_lci" });
+            if (TextFields.IsEmpty) return;
 
             query.Add(TextFields.GetQuery(terms));
 
