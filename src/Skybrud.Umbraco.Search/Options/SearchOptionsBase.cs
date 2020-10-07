@@ -81,9 +81,6 @@ namespace Skybrud.Umbraco.Search.Options {
 
             string[] terms = text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
-            // fjerner stop-ord fra søgetermen
-            terms = terms.Where(x => !StopAnalyzer.ENGLISH_STOP_WORDS_SET.Contains(x.ToLower())).ToArray();
-
             // fallback if no fields are added
             TextFields = TextFields ?? FieldList.GetFromStringArray(new[] { "nodeName_lci", "contentTeasertext_lci", "contentBody_lci" });
 
