@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Web;
 using Examine;
+using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Models;
+using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;
@@ -70,6 +73,26 @@ namespace Skybrud.Umbraco.Search {
 
             // Wrap the results
             return new SkybrudSearchResults(options, query, total, results);
+
+        }
+        
+        /// <summary>
+        /// Performs a search based on the specified <paramref name="request"/>.
+        /// </summary>
+        /// <param name="request">The request the search should be based on.</param>
+        /// <param name="groups">An array of groups to used for the search.</param>
+        /// <returns>An instance of <see cref="GroupedSearchResult"/>.</returns>
+        public GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups) {
+
+            int[] selectedGroups = request.QueryString["groups"].ToInt32Array();
+
+            IEnumerable<SearchGroupResult> result = (
+                from x in groups
+                where selectedGroups.Length == 0 || selectedGroups.Contains(x.Id)
+                select x?.Callback(x, request)
+            );
+
+            return new GroupedSearchResult(result);
 
         }
 
