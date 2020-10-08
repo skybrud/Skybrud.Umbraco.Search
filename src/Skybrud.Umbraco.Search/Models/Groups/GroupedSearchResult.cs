@@ -7,9 +7,9 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
     public class GroupedSearchResult {
 
         [JsonProperty("groups")]
-        public SearchGroupResult[] Groups { get; }
+        public SearchGroupResultList[] Groups { get; }
 
-        public GroupedSearchResult(IEnumerable<SearchGroupResult> groups) {
+        public GroupedSearchResult(IEnumerable<SearchGroupResultList> groups) {
             Groups = groups.ToArray();
         }
 

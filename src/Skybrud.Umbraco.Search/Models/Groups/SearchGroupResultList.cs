@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Skybrud.Umbraco.Search.Models.Groups {
 
-    public class SearchGroupResult {
+    public class SearchGroupResultList {
 
         [JsonProperty("id")]
         public int Id { get; }
@@ -23,7 +23,7 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         [JsonProperty("items")]
         public IEnumerable<object> Items { get; }
 
-        public SearchGroupResult(SearchGroup group, int limit, long offset, long total, IEnumerable<object> items) {
+        public SearchGroupResultList(SearchGroup group, int limit, long offset, long total, IEnumerable<object> items) {
             Id = group.Id;
             Name = group.Name;
             Total = total;

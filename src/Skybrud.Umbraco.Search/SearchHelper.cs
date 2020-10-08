@@ -10,27 +10,39 @@ using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;
+using Umbraco.Core;
 using Umbraco.Core.Logging;
+using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Web;
 
 namespace Skybrud.Umbraco.Search {
 
     public class SearchHelper {
 
         private readonly IExamineManager _examine;
+
         private readonly ILogger _logger;
+
+        private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
         #region Constructors
 
-        public SearchHelper(IExamineManager examine, ILogger logger) {
+        public SearchHelper(IExamineManager examine, ILogger logger, IUmbracoContextAccessor umbracoContextAccessor) {
             _examine = examine;
             _logger = logger;
+            _umbracoContextAccessor = umbracoContextAccessor;
         }
 
         #endregion
 
         #region Member methods
 
-        public virtual SkybrudSearchResults Search(ISearchOptions options) {
+        /// <summary>
+        /// Performs a search using the specified <paramref name="options"/> and returns the result of that search.
+        /// </summary>
+        /// <param name="options">The options for the search.</param>
+        /// <returns>An instance of <see cref="SearchResultList"/> representing the result of the search.</returns>
+        public virtual SearchResultList Search(ISearchOptions options) {
 
             // Start measuring the elapsed time
             Stopwatch sw = Stopwatch.StartNew();
@@ -72,10 +84,74 @@ namespace Skybrud.Umbraco.Search {
             }
 
             // Wrap the results
-            return new SkybrudSearchResults(options, query, total, results);
+            return new SearchResultList(options, query, total, results);
 
         }
-        
+
+        /// <summary>
+        /// Performs a search using the specified <paramref name="options"/> and returns the result of that search.
+        ///
+        /// Each item in the result is parsed to the type of <typeparamref name="TItem"/> using <paramref name="callback"/>.
+        /// </summary>
+        /// <typeparam name="TItem">The common output type of each item.</typeparam>
+        /// <param name="options">The options for the search.</param>
+        /// <param name="callback">A callback used for converting an <see cref="ISearchResult"/> to <typeparamref name="TItem"/>.</param>
+        /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
+        public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<ISearchResult, TItem> callback) {
+            SearchResultList results = Search(options);
+            return new SearchResultList<TItem>(options, results.Query, results.Total, results.Items.Select(callback));
+        }
+
+        /// <summary>
+        /// Performs a search using the specified <paramref name="options"/> and returns the result of that search.
+        ///
+        /// Each item in the result first found in either the content cache or media cache, and then parsed to the type of <typeparamref name="TItem"/> using <paramref name="callback"/>.
+        /// </summary>
+        /// <typeparam name="TItem">The common output type of each item.</typeparam>
+        /// <param name="options">The options for the search.</param>
+        /// <param name="callback">A callback used for converting an <see cref="IPublishedContent"/> to <typeparamref name="TItem"/>.</param>
+        /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
+        public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<IPublishedContent, TItem> callback) {
+
+            SearchResultList results = Search(options);
+
+            IEnumerable<TItem> items = results.Items
+                .Select(GetPublishedContentFromResult)
+                .WhereNotNull()
+                .Select(callback);
+
+            return new SearchResultList<TItem>(options, results.Query, results.Total, items);
+
+        }
+
+        /// <summary>
+        /// Converts the specified <paramref name="result"/> into an instance of <see cref="IPublishedContent"/>.
+        ///
+        /// The method will look at the <c>__IndexType</c> to determine the type of the result, and then use the
+        /// relevant published cache (eg. content or media) to lookup the <see cref="IPublishedContent"/> equivalent of
+        /// <paramref name="result"/>.
+        /// </summary>
+        /// <param name="result">The result to look up.</param>
+        /// <returns>An instance of <see cref="IPublishedContent"/>.</returns>
+        protected virtual IPublishedContent GetPublishedContentFromResult(ISearchResult result) {
+
+            string indexType = result.GetValues("__IndexType").FirstOrDefault();
+
+            switch (indexType) {
+
+                case "content":
+                    return _umbracoContextAccessor.UmbracoContext.Content.GetById(int.Parse(result.Id));
+
+                case "media":
+                    return _umbracoContextAccessor.UmbracoContext.Media.GetById(int.Parse(result.Id));
+
+                default:
+                    return null;
+
+            }
+
+        }
+
         /// <summary>
         /// Performs a search based on the specified <paramref name="request"/>.
         /// </summary>
@@ -86,7 +162,7 @@ namespace Skybrud.Umbraco.Search {
 
             int[] selectedGroups = request.QueryString["groups"].ToInt32Array();
 
-            IEnumerable<SearchGroupResult> result = (
+            IEnumerable<SearchGroupResultList> result = (
                 from x in groups
                 where selectedGroups.Length == 0 || selectedGroups.Contains(x.Id)
                 select x?.Callback(x, request)
@@ -96,8 +172,14 @@ namespace Skybrud.Umbraco.Search {
 
         }
 
-        public virtual DateTime GetSortValueByDateTime(ISearchResult result, string propertyAlias) {
-            return SearchUtils.Sorting.GetSortValueByDateTime(result, propertyAlias);
+        /// <summary>
+        /// Returns a <see cref="DateTime"/> parsed from the field with the specified <paramref name="key"/>.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="key">The key of the field.</param>
+        /// <returns>An instance of <see cref="DateTime"/>.</returns>
+        public virtual DateTime GetSortValueByDateTime(ISearchResult result, string key) {
+            return SearchUtils.Sorting.GetSortValueByDateTime(result, key);
         }
 
         /// <summary>

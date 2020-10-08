@@ -11,9 +11,9 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
 
         public int Limit { get; }
 
-        public Func<SearchGroup, HttpRequestBase, SearchGroupResult> Callback { get; }
+        public Func<SearchGroup, HttpRequestBase, SearchGroupResultList> Callback { get; }
 
-        public SearchGroup(int id, string name, int limit, Func<SearchGroup, HttpRequestBase, SearchGroupResult> callback) {
+        public SearchGroup(int id, string name, int limit, Func<SearchGroup, HttpRequestBase, SearchGroupResultList> callback) {
             Id = id;
             Name = name;
             Limit = limit;

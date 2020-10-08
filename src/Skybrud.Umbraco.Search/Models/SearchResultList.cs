@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using Examine;
 using Skybrud.Umbraco.Search.Options;
+using Skybrud.Umbraco.Search.Options.Pagination;
 
 namespace Skybrud.Umbraco.Search.Models {
 
     /// <summary>
     /// Class representing a result of a search based on <see cref="Options"/>.
     /// </summary>
-    public class SkybrudSearchResults {
+    public class SearchResultList {
+
+        #region Properties
 
         /// <summary>
         /// Gets the options the search was based on.
@@ -31,16 +34,25 @@ namespace Skybrud.Umbraco.Search.Models {
 
         /// <summary>
         /// Gets the items returned by the search.
+        ///
+        /// If <see cref="Options"/> implements <see cref="IOffsetOptions"/>, the items will be paginated honouring
+        /// <see cref="IOffsetOptions.Limit"/> and <see cref="IOffsetOptions.Offset"/>.
         /// </summary>
-        public IEnumerable<ISearchResult> Results { get; }
+        public IEnumerable<ISearchResult> Items { get; }
 
-        public SkybrudSearchResults(ISearchOptions options, string query, long total, IEnumerable<ISearchResult> results) {
+        #endregion
+
+        #region Constructors
+
+        public SearchResultList(ISearchOptions options, string query, long total, IEnumerable<ISearchResult> items) {
             Options = options;
             IsDebug = options.IsDebug;
             Query = query;
             Total = total;
-            Results = results;
+            Items = items;
         }
+
+        #endregion
 
     }
 
