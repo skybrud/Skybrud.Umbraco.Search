@@ -125,6 +125,31 @@ namespace Skybrud.Umbraco.Search {
         }
 
         /// <summary>
+        /// Performs a search using the specified <paramref name="options"/> and returns the result of that search.
+        ///
+        /// Each item in the result first found in either the content cache or media cache, and then parsed to the type of <typeparamref name="TItem"/> using <paramref name="callback"/>.
+        /// </summary>
+        /// <typeparam name="TItem">The common output type of each item.</typeparam>
+        /// <param name="options">The options for the search.</param>
+        /// <param name="callback">A callback used for converting an <see cref="IPublishedContent"/> to <typeparamref name="TItem"/>.</param>
+        /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
+        public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<IPublishedContent, ISearchResult, TItem> callback) {
+
+            SearchResultList results = Search(options);
+
+            // Map the search results
+            IEnumerable<TItem> items = (
+                from x in results.Items
+                let content = GetPublishedContentFromResult(x)
+                where content != null
+                select callback(content, x)
+            );
+
+            return new SearchResultList<TItem>(options, results.Query, results.Total, items);
+
+        }
+
+        /// <summary>
         /// Converts the specified <paramref name="result"/> into an instance of <see cref="IPublishedContent"/>.
         ///
         /// The method will look at the <c>__IndexType</c> to determine the type of the result, and then use the
