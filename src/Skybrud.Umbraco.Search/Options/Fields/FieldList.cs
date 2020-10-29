@@ -11,6 +11,8 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
 
         #region Properties
 
+        public static FieldList DefaultFields => GetFromStringArray(new[] { "nodeName_lci", "contentTeasertext_lci", "contentBody_lci" });
+
         /// <summary>
         /// Gets the amount of fields added to to the list.
         /// </summary>

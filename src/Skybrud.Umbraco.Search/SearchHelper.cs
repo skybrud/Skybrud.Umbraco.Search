@@ -165,7 +165,7 @@ namespace Skybrud.Umbraco.Search {
             IEnumerable<SearchGroupResultList> result = (
                 from x in groups
                 where selectedGroups.Length == 0 || selectedGroups.Contains(x.Id)
-                select x?.Callback(x, request)
+                select x?.Callback(x, request, null)
             );
 
             return new GroupedSearchResult(result);
