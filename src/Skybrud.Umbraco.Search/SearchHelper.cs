@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Web;
 using Examine;
 using Skybrud.Essentials.Strings.Extensions;
@@ -24,6 +26,25 @@ namespace Skybrud.Umbraco.Search {
         private readonly ILogger _logger;
 
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
+
+        #region Properties
+
+        protected Dictionary<char, string> Diacritics { get; } = new Dictionary<char, string> {
+            
+            // Examine/Lucene converts "æ" to "ae"
+            { 'æ', "ae" },
+            
+            // Examine/Lucene converts "ø" to "o", not "oe"
+            { 'ø', "o" },
+            
+            // Examine/Lucene converts "å" to "a", not "aa"
+            { 'å', "a" }
+
+            // TODO: Add support for more characters (may be a long list)
+
+        };
+
+        #endregion
 
         #region Constructors
 
@@ -195,6 +216,59 @@ namespace Skybrud.Umbraco.Search {
             );
 
             return new GroupedSearchResult(result);
+
+        }
+
+        /// <summary>
+        /// Replaces and removes diacritics in the specified <paramref name="input"/> string.
+        /// </summary>
+        /// <param name="input">The string.</param>
+        /// <returns>The result of the replacement.</returns>
+        public virtual string ReplaceDiacritics(string input) {
+
+            // See: http://www.levibotelho.com/development/c-remove-diacritics-accents-from-a-string/
+            
+            string normalizedString = input.Normalize(NormalizationForm.FormD);
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in normalizedString) {
+
+                // Look for the character in the replacement table
+                if (Diacritics.TryGetValue(c, out string replacement)) {
+                    sb.Append(replacement);
+                    continue;
+                }
+
+                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark) {
+                    sb.Append(c);
+                }
+
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+
+        }
+
+        public virtual string RemoveDiacritics(string input) {
+
+            // See: http://www.levibotelho.com/development/c-remove-diacritics-accents-from-a-string/
+            
+            string normalizedString = input.Normalize(NormalizationForm.FormD);
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in normalizedString) {
+
+                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark) {
+                    sb.Append(c);
+                }
+
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
 
         }
 
