@@ -168,6 +168,7 @@ namespace Skybrud.Umbraco.Search {
                     return _umbracoContextAccessor.UmbracoContext.Content.GetById(int.Parse(result.Id));
 
                 case "media":
+                case "pdf":
                     return _umbracoContextAccessor.UmbracoContext.Media.GetById(int.Parse(result.Id));
 
                 default:
