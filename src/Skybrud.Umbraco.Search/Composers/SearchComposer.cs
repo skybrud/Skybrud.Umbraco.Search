@@ -8,7 +8,7 @@ namespace Skybrud.Umbraco.Search.Composers {
         public void Compose(Composition composition) {
 
             // Hook up our main class with dependency injection
-            composition.Register<SearchHelper>();
+            composition.Register<ISearchHelper, SearchHelper>();
 
         }
 

@@ -35,7 +35,7 @@ namespace Skybrud.Umbraco.Search.Options {
 
         #region Member methods
 
-        protected override void SearchType(List<string> query) {
+        protected override void SearchType(ISearchHelper helper, List<string> query) {
             if (ContentTypes == null || ContentTypes.Count == 0) return;
             query.Add($"({string.Join(" OR ", from type in ContentTypes select "__NodeTypeAlias:" + type)})");
         }

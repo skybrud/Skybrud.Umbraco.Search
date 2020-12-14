@@ -18,26 +18,26 @@ namespace Skybrud.Umbraco.Search.Options {
 
         #region Member methods
 
-        public virtual string GetRawQuery() {
-            return string.Join(" AND ", GetQueryList());
+        public virtual string GetRawQuery(ISearchHelper searchHelper) {
+            return string.Join(" AND ", GetQueryList(searchHelper));
         }
 
-        protected virtual List<string> GetQueryList() {
+        protected virtual List<string> GetQueryList(ISearchHelper searchHelper) {
 
             List<string> query = new List<string>();
 
-            SearchType(query);
-            SearchText(query);
-            //SearchPath(query);
-            //SearchHideFromSearch(query);
+            SearchType(searchHelper, query);
+            SearchText(searchHelper, query);
+            //SearchPath(searchHelper, query);
+            //SearchHideFromSearch(searchHelper, query);
 
             return query;
 
         }
 
-        protected virtual void SearchType(List<string> query) { }
+        protected virtual void SearchType(ISearchHelper searchHelper, List<string> query) { }
 
-        protected virtual void SearchText(List<string> query) {
+        protected virtual void SearchText(ISearchHelper searchHelper, List<string> query) {
 
             if (Text == null) return;
 

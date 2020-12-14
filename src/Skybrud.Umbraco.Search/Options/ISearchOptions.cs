@@ -18,7 +18,7 @@ namespace Skybrud.Umbraco.Search.Options  {
         /// Gets the raw query for the search.
         /// </summary>
         /// <returns></returns>
-        string GetRawQuery();
+        string GetRawQuery(ISearchHelper searchHelper);
 
     }
 

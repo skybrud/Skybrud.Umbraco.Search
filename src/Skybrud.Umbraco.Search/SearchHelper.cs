@@ -19,7 +19,7 @@ using Umbraco.Web;
 
 namespace Skybrud.Umbraco.Search {
 
-    public class SearchHelper {
+    public class SearchHelper : ISearchHelper {
 
         private readonly IExamineManager _examine;
 
@@ -83,7 +83,7 @@ namespace Skybrud.Umbraco.Search {
             }
 
             // Get the raw query via the options
-            string query = options.GetRawQuery();
+            string query = options.GetRawQuery(this);
 
             // Make the search in Examine
             ISearchResults allResults = searcher.CreateQuery().NativeQuery(query).Execute(int.MaxValue);
