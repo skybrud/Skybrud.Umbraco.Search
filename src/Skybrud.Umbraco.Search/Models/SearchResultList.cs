@@ -46,7 +46,7 @@ namespace Skybrud.Umbraco.Search.Models {
 
         public SearchResultList(ISearchOptions options, string query, long total, IEnumerable<ISearchResult> items) {
             Options = options;
-            IsDebug = options.IsDebug;
+            IsDebug = options is IDebugSearchOptions debug && debug.IsDebug;
             Query = query;
             Total = total;
             Items = items;

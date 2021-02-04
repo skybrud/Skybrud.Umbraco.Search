@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Examine;
+using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Options.Fields;
 
 namespace Skybrud.Umbraco.Search.Options {
 
-    public class SearchOptionsBase : ISearchOptions {
+    public class SearchOptionsBase : IGetSearcherOptions, IDebugSearchOptions {
 
         #region Properties
-
-        public ISearcher Searcher { get; set; }
         
         /// <summary>
         /// Gets or sets the text to search for.
@@ -52,14 +50,18 @@ namespace Skybrud.Umbraco.Search.Options {
         #endregion
 
         #region Member methods
-
-        public virtual string GetRawQuery(ISearchHelper searchHelper) {
-            return string.Join(" AND ", GetQueryList(searchHelper));
+        
+        public virtual ISearcher GetSearcher(IExamineManager examineManager, ISearchHelper searchHelper) {
+            return GetSearcherByIndexName(examineManager, searchHelper, ExamineConstants.ExternalIndexName);
         }
 
-        protected virtual List<string> GetQueryList(ISearchHelper searchHelper) {
+        public virtual string GetRawQuery(ISearchHelper searchHelper) {
+            return GetQueryList(searchHelper).GetRawQuery();
+        }
 
-            List<string> query = new List<string>();
+        protected virtual QueryList GetQueryList(ISearchHelper searchHelper) {
+
+            QueryList query = new QueryList();
 
             SearchType(searchHelper, query);
             SearchText(searchHelper, query);
@@ -70,9 +72,9 @@ namespace Skybrud.Umbraco.Search.Options {
 
         }
 
-        protected virtual void SearchType(ISearchHelper searchHelper, List<string> query) { }
+        protected virtual void SearchType(ISearchHelper searchHelper, QueryList query) { }
 
-        protected virtual void SearchText(ISearchHelper searchHelper, List<string> query) {
+        protected virtual void SearchText(ISearchHelper searchHelper, QueryList query) {
 
             if (string.IsNullOrWhiteSpace(Text)) return;
 
@@ -89,14 +91,30 @@ namespace Skybrud.Umbraco.Search.Options {
 
         }
 
-        protected virtual void SearchPath(ISearchHelper searchHelper, List<string> query) {
+        protected virtual void SearchPath(ISearchHelper searchHelper, QueryList query) {
             if (RootIds == null || RootIds.Length == 0) return;
             query.Add("(" + string.Join(" OR ", from id in RootIds select "path_search:" + id) + ")");
         }
 
-        protected virtual void SearchHideFromSearch(ISearchHelper searchHelper, List<string> query) {
+        protected virtual void SearchHideFromSearch(ISearchHelper searchHelper, QueryList query) {
             if (DisableHideFromSearch) return;
             query.Add("hideFromSearch:0");
+        }
+
+        protected virtual ISearcher GetSearcherByIndexName(IExamineManager examineManager, ISearchHelper searchHelper, string indexName) {
+
+            // Get the index from the Examine manager
+            if (!examineManager.TryGetIndex(indexName, out IIndex index)) {
+                throw new Exception($"Examine index {indexName} not found.");
+            }
+
+            // Get the searcher from the index
+            ISearcher searcher = index.GetSearcher();
+            if (searcher == null) throw new Exception("Examine index {indexName} does not specify a searcher.");
+            
+            // Return the searcher
+            return searcher;
+
         }
 
         #endregion

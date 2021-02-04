@@ -7,6 +7,7 @@ using System.Text;
 using System.Web;
 using Examine;
 using Skybrud.Essentials.Strings.Extensions;
+using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
@@ -69,18 +70,7 @@ namespace Skybrud.Umbraco.Search {
             Stopwatch sw = Stopwatch.StartNew();
 
             // Get the searcher from the options
-            ISearcher searcher = options.Searcher;
-
-            // Fall back to the searcher of the external index if a searcher hasn't been specified
-            if (options.Searcher == null) {
-
-                if (_examine.TryGetIndex("ExternalIndex", out IIndex index) == false) throw new Exception("Examine index not found.");
-
-                // Get the searcher from the index
-                searcher = index.GetSearcher();
-                if (searcher == null) throw new Exception("Examine searcher not found.");
-
-            }
+            ISearcher searcher = GetSearcher(options);
 
             // Get the raw query via the options
             string query = options.GetRawQuery(this);
@@ -100,7 +90,7 @@ namespace Skybrud.Umbraco.Search {
 
             sw.Stop();
 
-            if (options.IsDebug) {
+            if (options is IDebugSearchOptions debug && debug.IsDebug) {
                 _logger.Debug<SearchHelper>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
             }
 
@@ -289,6 +279,42 @@ namespace Skybrud.Umbraco.Search {
         /// <returns>An instance of <see cref="DateTime"/>.</returns>
         public virtual DateTime GetSortValueByContentDate(ISearchResult result) {
             return SearchUtils.Sorting.GetSortValueByContentDate(result);
+        }
+
+        /// <summary>
+        /// Returns the <see cref="ISearcher"/> as specified by the specified <paramref name="options"/>.
+        ///
+        /// If <paramref name="options"/> doesn't specify a searcher, the searcher of <c>ExternalIndex</c> will be used as fallback.
+        /// </summary>
+        /// <param name="options">The search options.</param>
+        /// <returns>The <see cref="ISearcher"/> to be used for the search.</returns>
+        protected virtual ISearcher GetSearcher(ISearchOptions options) {
+
+            ISearcher searcher;
+
+            switch (options) {
+
+                case ISearcherOptions searcherOptions:
+                    searcher = searcherOptions.Searcher;
+                    if (searcher != null) return searcher;
+                    break;
+
+                case IGetSearcherOptions getSearcherOptions:
+                    searcher = getSearcherOptions.GetSearcher(_examine, this);
+                    if (searcher != null) return searcher;
+                    break;
+
+                default:
+                    if (_examine.TryGetIndex(ExamineConstants.ExternalIndexName, out IIndex index)) {
+                        searcher = index.GetSearcher();
+                        if (searcher != null) return searcher;
+                    }
+                    break;
+
+            }
+            
+            throw new Exception($"Failed determining searcher from {options.GetType()}");
+
         }
 
         #endregion

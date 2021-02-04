@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Examine;
+﻿using Examine;
 using Skybrud.Umbraco.Search.Options.Text;
 
 namespace Skybrud.Umbraco.Search.Options {
@@ -22,9 +21,9 @@ namespace Skybrud.Umbraco.Search.Options {
             return string.Join(" AND ", GetQueryList(searchHelper));
         }
 
-        protected virtual List<string> GetQueryList(ISearchHelper searchHelper) {
+        protected virtual QueryList GetQueryList(ISearchHelper searchHelper) {
 
-            List<string> query = new List<string>();
+            QueryList query = new QueryList();
 
             SearchType(searchHelper, query);
             SearchText(searchHelper, query);
@@ -35,9 +34,9 @@ namespace Skybrud.Umbraco.Search.Options {
 
         }
 
-        protected virtual void SearchType(ISearchHelper searchHelper, List<string> query) { }
+        protected virtual void SearchType(ISearchHelper searchHelper, QueryList query) { }
 
-        protected virtual void SearchText(ISearchHelper searchHelper, List<string> query) {
+        protected virtual void SearchText(ISearchHelper searchHelper, QueryList query) {
 
             if (Text == null) return;
 
@@ -52,4 +51,5 @@ namespace Skybrud.Umbraco.Search.Options {
         #endregion
 
     }
+
 }
