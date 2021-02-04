@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Skybrud.Umbraco.Search.Options.Pagination;
+﻿using Skybrud.Umbraco.Search.Options.Pagination;
 
 namespace Skybrud.Umbraco.Search.Options {
 
-    public class ListSearchOptions : SearchOptionsBase, IOffsetOptions {
+    public class OffsetSearchOptionsBase : SearchOptionsBase, IOffsetOptions {
 
         #region Properties
 
@@ -27,7 +25,7 @@ namespace Skybrud.Umbraco.Search.Options {
 
         #region Constructors
 
-        public ListSearchOptions() {
+        public OffsetSearchOptionsBase() {
             ContentTypes = new ContentTypeList();
         }
 
@@ -35,9 +33,9 @@ namespace Skybrud.Umbraco.Search.Options {
 
         #region Member methods
 
-        protected override void SearchType(ISearchHelper helper, List<string> query) {
+        protected override void SearchType(ISearchHelper helper, QueryList query) {
             if (ContentTypes == null || ContentTypes.Count == 0) return;
-            query.Add($"({string.Join(" OR ", from type in ContentTypes select "__NodeTypeAlias:" + type)})");
+            query.AppendNodeTypeAliases(ContentTypes);
         }
 
         #endregion
