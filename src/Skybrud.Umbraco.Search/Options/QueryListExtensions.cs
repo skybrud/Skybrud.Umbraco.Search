@@ -8,9 +8,15 @@ namespace Skybrud.Umbraco.Search.Options {
             list.Add($"__NodeTypeAlias:{alias}");
             return list;
         }
+        
         public static T AppendNodeTypeAliases<T>(this T list, params string[] aliases) where T : QueryList {
             list.Add($"__NodeTypeAlias:({string.Join(" ", aliases)})");
             return list;
+        }
+
+        public static void AppendNodeTypeAliases(this QueryList list, ContentTypeList contentTypes) {
+            if (contentTypes == null || contentTypes.Count == 0) return;
+            list.Add($"__NodeTypeAlias:({string.Join(" ", contentTypes.ToArray())})");
         }
 
         public static T AppendHideFromSearch<T>(this T list) where T : QueryList {
