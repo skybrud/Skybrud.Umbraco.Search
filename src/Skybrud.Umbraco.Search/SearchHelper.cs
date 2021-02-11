@@ -109,8 +109,18 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="callback">A callback used for converting an <see cref="ISearchResult"/> to <typeparamref name="TItem"/>.</param>
         /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
         public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<ISearchResult, TItem> callback) {
+            
+            // Make the search in Examine
             SearchResultList results = Search(options);
-            return new SearchResultList<TItem>(options, results.Query, results.Total, results.Items.Select(callback));
+
+            // Iterate through and call "callback" for each item
+            IEnumerable<TItem> items = results.Items
+                .Select(callback)
+                .Where(x => x != null);
+
+            // Wrap the result
+            return new SearchResultList<TItem>(options, results.Query, results.Total, items);
+
         }
 
         /// <summary>
@@ -124,13 +134,17 @@ namespace Skybrud.Umbraco.Search {
         /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
         public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<IPublishedContent, TItem> callback) {
 
+            // Make the search in Examine
             SearchResultList results = Search(options);
 
+            // Iterate through the result and look up the content
             IEnumerable<TItem> items = results.Items
                 .Select(GetPublishedContentFromResult)
                 .WhereNotNull()
-                .Select(callback);
+                .Select(callback)
+                .Where(x => x != null);
 
+            // Wrap the result
             return new SearchResultList<TItem>(options, results.Query, results.Total, items);
 
         }
@@ -146,16 +160,19 @@ namespace Skybrud.Umbraco.Search {
         /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
         public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<IPublishedContent, ISearchResult, TItem> callback) {
 
+            // Make the search in Examine
             SearchResultList results = Search(options);
 
             // Map the search results
             IEnumerable<TItem> items = (
                 from x in results.Items
                 let content = GetPublishedContentFromResult(x)
-                where content != null
-                select callback(content, x)
+                let result = callback(content, x)
+                where result != null
+                select result
             );
 
+            // Wrap the result
             return new SearchResultList<TItem>(options, results.Query, results.Total, items);
 
         }
