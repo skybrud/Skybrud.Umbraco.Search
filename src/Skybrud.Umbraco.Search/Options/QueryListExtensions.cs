@@ -30,7 +30,7 @@ namespace Skybrud.Umbraco.Search.Options {
         }
 
         public static T AppendAncestors<T>(this T list, params int[] ancestorIds) where T : QueryList {
-            list.Add($"path_search:{string.Join(" ", from id in ancestorIds select id.ToString())}");
+            list.Add($"path_search:({string.Join(" ", from id in ancestorIds select id.ToString())})");
             return list;
         }
 
