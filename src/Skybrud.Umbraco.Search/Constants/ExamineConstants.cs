@@ -11,7 +11,9 @@
         /// <summary>
         /// Gets the name of the index created by the <strong>UmbracoCms.UmbracoExamine.PDF</strong> package.
         /// </summary>
-        /// <see cref="https://www.nuget.org/packages/UmbracoCms.UmbracoExamine.PDF/"/>
+        /// <see>
+        ///     <cref>https://www.nuget.org/packages/UmbracoCms.UmbracoExamine.PDF/</cref>
+        /// </see>
         public const string PdfIndexName = "PDFIndex";
 
     }
