@@ -12,6 +12,18 @@ namespace Skybrud.Umbraco.Search.Extensions {
     public static class ExamineIndexingExtensions {
 
         /// <summary>
+        /// Attemps to get the first string value of a field with the specified <paramref name="key"/>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="key">The key of the field.</param>
+        /// <param name="value">When this method returns, contains the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.</param>
+        /// <returns><c>true</c> if the value set contains a field with the specified key; otherwise, <c>false</c>.</returns>
+        public static bool TryGetString(this IndexingItemEventArgs e, string key, out string value) {
+            value = e.ValueSet.Values.TryGetValue(key, out List<object> values) ? values.FirstOrDefault() as string : null;
+            return value != null;
+        }
+
+        /// <summary>
         /// If a field with <paramref name="key"/> exists, a new field in which commas in the value has been replaced
         /// by spaces, making each value searchable.
         ///
