@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Examine;
 using Skybrud.Essentials.Strings;
@@ -113,6 +114,46 @@ namespace Skybrud.Umbraco.Search.Extensions {
 
             // Add the default value
             e.ValueSet.TryAdd($"{key}{suffix}", value);
+
+        }
+
+        /// <summary>
+        /// Adds a searchable version of the date value in the field with the specified <paramref name="key"/>.
+        ///
+        /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (at it enables
+        /// a ranged query) and the value will be formatted using <c>yyyyMMddHHmm00000</c>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="key">The key of the field.</param>
+        public static void IndexDate(IndexingItemEventArgs e, string key) {
+            IndexDate(e, key, "yyyyMMddHHmm00000");
+        }
+
+        /// <summary>
+        /// Adds a searchable version of the date value in the field with the specified <paramref name="key"/>.
+        /// 
+        /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (at it enables
+        /// a ranged query) and the value will be formatted using the specified <paramref name="format"/>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="key">The key of the field.</param>
+        /// <param name="format">The format that should be used when adding the date to the value set.</param>
+        public static void IndexDate(IndexingItemEventArgs e, string key, string format) {
+
+            // Attempt to get the values of the specified field
+            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
+
+            // Get the first value of the field
+            switch (values.FirstOrDefault()) {
+
+                case DateTime dt:
+
+                    e.ValueSet.TryAdd(key + "_range", dt.ToString(format));
+                    break;
+
+                // TODO: Any other types we should handle?
+
+            }
 
         }
 
