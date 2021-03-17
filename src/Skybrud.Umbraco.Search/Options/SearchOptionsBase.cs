@@ -17,11 +17,6 @@ namespace Skybrud.Umbraco.Search.Options {
         public string Text { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of fields that should be used when searching for <see cref="Fields"/>.
-        /// </summary>
-        public FieldList TextFields { get; set; }
-
-        /// <summary>
         /// Gets or sets an array of IDs the returned results should be a descendant of. At least one of the IDs should
         /// be in the path of the result to be a match.
         /// </summary>
@@ -44,7 +39,6 @@ namespace Skybrud.Umbraco.Search.Options {
         public SearchOptionsBase() {
             Text = string.Empty;
             RootIds = null;
-            TextFields = new FieldList();
         }
 
         #endregion
@@ -72,6 +66,14 @@ namespace Skybrud.Umbraco.Search.Options {
 
         }
 
+        protected virtual FieldList GetTextFields(ISearchHelper helper) {
+            return new FieldList {
+                new Field("nodeName", 50),
+                new Field("title", 40),
+                new Field("teaser", 20)
+            };
+        }
+
         protected virtual void SearchType(ISearchHelper searchHelper, QueryList query) { }
 
         protected virtual void SearchText(ISearchHelper searchHelper, QueryList query) {
@@ -83,11 +85,11 @@ namespace Skybrud.Umbraco.Search.Options {
             string[] terms = text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
             if (terms.Length == 0) return;
 
-            // fallback if no fields are added
-            TextFields = TextFields ?? FieldList.GetFromStringArray(new[] { "nodeName_lci", "contentTeasertext_lci", "contentBody_lci" });
-            if (TextFields.IsEmpty) return;
+            // Fallback if no fields are added
+            FieldList fields = GetTextFields(searchHelper);
+            if (fields == null || fields.Count == 0) fields = FieldList.GetFromStringArray(new[] { "nodeName_lci", "contentTeasertext_lci", "contentBody_lci" });
 
-            query.Add(TextFields.GetQuery(terms));
+            query.Add(fields.GetQuery(terms));
 
         }
 
