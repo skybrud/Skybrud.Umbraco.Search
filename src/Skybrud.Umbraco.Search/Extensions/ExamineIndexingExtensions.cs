@@ -125,7 +125,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="key">The key of the field.</param>
-        public static void IndexDate(IndexingItemEventArgs e, string key) {
+        public static void IndexDate(this IndexingItemEventArgs e, string key) {
             IndexDate(e, key, "yyyyMMddHHmm00000");
         }
 
@@ -138,7 +138,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="e"></param>
         /// <param name="key">The key of the field.</param>
         /// <param name="format">The format that should be used when adding the date to the value set.</param>
-        public static void IndexDate(IndexingItemEventArgs e, string key, string format) {
+        public static void IndexDate(this IndexingItemEventArgs e, string key, string format) {
 
             // Attempt to get the values of the specified field
             if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
