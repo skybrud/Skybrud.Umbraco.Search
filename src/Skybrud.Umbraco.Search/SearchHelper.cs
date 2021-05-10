@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using Examine;
+using Examine.Search;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Models;
@@ -76,7 +77,9 @@ namespace Skybrud.Umbraco.Search {
             string query = options.GetRawQuery(this);
 
             // Make the search in Examine
-            ISearchResults allResults = searcher.CreateQuery().NativeQuery(query).Execute(int.MaxValue);
+            ISearchResults allResults = CreateQuery(searcher, options)
+                .NativeQuery(query)
+                .Execute(int.MaxValue);
 
             long total = allResults.TotalItemCount;
 
@@ -332,6 +335,16 @@ namespace Skybrud.Umbraco.Search {
             
             throw new Exception($"Failed determining searcher from {options.GetType()}");
 
+        }
+
+        /// <summary>
+        /// Creates a new query from the specified <paramref name="searcher"/> and <paramref name="options"/>.
+        /// </summary>
+        /// <param name="searcher">The searcher.</param>
+        /// <param name="options">The options for the search.</param>
+        /// <returns>An instance of <see cref="IQuery"/>.</returns>
+        protected virtual IQuery CreateQuery(ISearcher searcher, ISearchOptions options) {
+            return searcher.CreateQuery();
         }
 
         #endregion
