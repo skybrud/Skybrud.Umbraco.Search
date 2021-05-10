@@ -1,4 +1,5 @@
 ﻿using Examine;
+using Examine.Search;
 using Skybrud.Umbraco.Search.Options.Text;
 
 namespace Skybrud.Umbraco.Search.Options {
@@ -17,8 +18,8 @@ namespace Skybrud.Umbraco.Search.Options {
 
         #region Member methods
 
-        public virtual string GetRawQuery(ISearchHelper searchHelper) {
-            return string.Join(" AND ", GetQueryList(searchHelper));
+        public virtual IBooleanOperation GetBooleanOperation(ISearchHelper searchHelper, ISearcher searcher, IQuery query) {
+            return query.NativeQuery(string.Join(" AND ", GetQueryList(searchHelper)));
         }
 
         protected virtual QueryList GetQueryList(ISearchHelper searchHelper) {

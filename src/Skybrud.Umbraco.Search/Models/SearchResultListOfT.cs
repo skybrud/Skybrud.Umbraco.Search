@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Examine.Search;
 using Skybrud.Umbraco.Search.Options;
 
 namespace Skybrud.Umbraco.Search.Models {
@@ -23,7 +24,7 @@ namespace Skybrud.Umbraco.Search.Models {
         /// <summary>
         /// 
         /// </summary>
-        public string Query { get; }
+        public IQuery Query { get; }
 
         /// <summary>
         /// Gets the total amount of items returned by the search.
@@ -39,7 +40,7 @@ namespace Skybrud.Umbraco.Search.Models {
 
         #region Constructors
 
-        public SearchResultList(ISearchOptions options, string query, long total, IEnumerable<T> items) {
+        public SearchResultList(ISearchOptions options, IQuery query, long total, IEnumerable<T> items) {
             Options = options;
             IsDebug = options is IDebugSearchOptions debug && debug.IsDebug;
             Query = query;

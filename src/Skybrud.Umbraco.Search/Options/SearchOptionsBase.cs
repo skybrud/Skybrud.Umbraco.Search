@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Examine;
+using Examine.Search;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Options.Fields;
 
@@ -48,9 +49,9 @@ namespace Skybrud.Umbraco.Search.Options {
         public virtual ISearcher GetSearcher(IExamineManager examineManager, ISearchHelper searchHelper) {
             return GetSearcherByIndexName(examineManager, searchHelper, ExamineConstants.ExternalIndexName);
         }
-
-        public virtual string GetRawQuery(ISearchHelper searchHelper) {
-            return GetQueryList(searchHelper).GetRawQuery();
+        
+        public virtual IBooleanOperation GetBooleanOperation(ISearchHelper searchHelper, ISearcher searcher, IQuery query) {
+            return query.NativeQuery(string.Join(" AND ", GetQueryList(searchHelper)));
         }
 
         protected virtual QueryList GetQueryList(ISearchHelper searchHelper) {

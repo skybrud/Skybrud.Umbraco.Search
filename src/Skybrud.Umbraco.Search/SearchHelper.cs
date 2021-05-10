@@ -73,12 +73,12 @@ namespace Skybrud.Umbraco.Search {
             // Get the searcher from the options
             ISearcher searcher = GetSearcher(options);
 
-            // Get the raw query via the options
-            string query = options.GetRawQuery(this);
+            // Create a new Examine query
+            IQuery query = CreateQuery(searcher, options);
 
             // Make the search in Examine
-            ISearchResults allResults = CreateQuery(searcher, options)
-                .NativeQuery(query)
+            ISearchResults allResults = options
+                .GetBooleanOperation(this, searcher, query)
                 .Execute(int.MaxValue);
 
             long total = allResults.TotalItemCount;
