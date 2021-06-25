@@ -32,7 +32,7 @@ namespace Skybrud.Umbraco.Search.Options {
                     break;
 
                 default:
-                    throw new Exception("Unsupported type: " + value.GetType());
+                    throw new Exception($"Unsupported type: {value.GetType()}");
 
             }
 

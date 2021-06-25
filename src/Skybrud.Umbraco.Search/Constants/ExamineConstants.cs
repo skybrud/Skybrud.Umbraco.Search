@@ -16,6 +16,24 @@
         /// </see>
         public const string PdfIndexName = "PDFIndex";
 
+        public static class Fields {
+
+            public const string IndexType = "__IndexType";
+
+            public const string Key = "__Key";
+
+            public const string NodeId = "__NodeId";
+
+            public const string NodeTypeAlias = "__NodeTypeAlias";
+
+            public const string Path = "path";
+
+            public const string PathSearch = "path_search";
+
+            public const string HideFromSearch = "hideFromSearch";
+
+        }
+
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Skybrud.Umbraco.Search.Constants;
 
 namespace Skybrud.Umbraco.Search.Options {
 
@@ -8,13 +9,13 @@ namespace Skybrud.Umbraco.Search.Options {
 
         public static T AppendNodeTypeAlias<T>(this T list, string alias) where T : QueryList {
             if (string.IsNullOrWhiteSpace(alias)) throw new ArgumentNullException(nameof(alias));
-            list?.Add($"__NodeTypeAlias:{alias}");
+            list?.Add($"{ExamineConstants.Fields.NodeTypeAlias}:{alias}");
             return list;
         }
         
         public static T AppendNodeTypeAliases<T>(this T list, params string[] aliases) where T : QueryList {
             if (aliases == null || aliases.Length == 0) return list;
-            list?.Add($"__NodeTypeAlias:({string.Join(" ", aliases)})");
+            list?.Add($"{ExamineConstants.Fields.NodeTypeAlias}:({string.Join(" ", aliases)})");
             return list;
         }
 
@@ -24,7 +25,7 @@ namespace Skybrud.Umbraco.Search.Options {
 
         public static T AppendNodeTypeAliases<T>(this T list, ContentTypeList contentTypes) where T : QueryList {
             if (contentTypes == null || contentTypes.Count == 0) return list;
-            list?.Add($"__NodeTypeAlias:({string.Join(" ", contentTypes.ToArray())})");
+            list?.Add($"{ExamineConstants.Fields.NodeTypeAlias}:({string.Join(" ", contentTypes.ToArray())})");
             return list;
         }
 
@@ -34,12 +35,12 @@ namespace Skybrud.Umbraco.Search.Options {
         }
 
         public static T AppendAncestor<T>(this T list, int ancestorId) where T : QueryList {
-            list?.Add($"path_search:{ancestorId}");
+            list?.Add($"{ExamineConstants.Fields.PathSearch}:{ancestorId}");
             return list;
         }
 
         public static T AppendAncestors<T>(this T list, params int[] ancestorIds) where T : QueryList {
-            list?.Add($"path_search:({string.Join(" ", from id in ancestorIds select id)})");
+            list?.Add($"{ExamineConstants.Fields.PathSearch}:({string.Join(" ", from id in ancestorIds select id)})");
             return list;
         }
 

@@ -180,7 +180,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
 
                 case DateTime dt:
 
-                    e.ValueSet.TryAdd(key + "_range", dt.ToString(format));
+                    e.ValueSet.TryAdd($"{key}_range", dt.ToString(format));
                     break;
 
                 // TODO: Any other types we should handle?
