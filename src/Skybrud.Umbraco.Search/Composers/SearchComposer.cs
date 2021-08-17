@@ -1,4 +1,5 @@
-﻿using Umbraco.Core;
+﻿using Skybrud.Umbraco.Search.Indexing;
+using Umbraco.Core;
 using Umbraco.Core.Composing;
 
 namespace Skybrud.Umbraco.Search.Composers {
@@ -7,8 +8,9 @@ namespace Skybrud.Umbraco.Search.Composers {
 
         public void Compose(Composition composition) {
 
-            // Hook up our main class with dependency injection
+            // Set up dependency injection
             composition.Register<ISearchHelper, SearchHelper>();
+            composition.Register<IndexingHelper>();
 
         }
 
