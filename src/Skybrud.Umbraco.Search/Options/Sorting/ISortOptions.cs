@@ -1,33 +1,32 @@
 ﻿using Examine.Search;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Examine;
+using Skybrud.Essentials.Collections;
 
-namespace Skybrud.Umbraco.Search.Options.Sorting
-{
+namespace Skybrud.Umbraco.Search.Options.Sorting {
+    
     /// <summary>
     /// Interface used for decribing how a collection of <see cref="ISearchResult"/> should be sorted during the search.
     /// </summary>
-    public interface ISortOptions : ISearchOptions
-    {
+    public interface ISortOptions : ISearchOptions {
+        
         /// <summary>
-        /// The property field to sort after
+        /// The property field to sort after.
         /// </summary>
         string SortField { get; set; }
 
         /// <summary>
-        /// The sort type of the property field
+        /// The sort type of the property field.
         /// </summary>
         /// <remarks>
-        /// For FullTextSortable use <see cref="SortType.String"/> and for DateTime use <see cref="SortType.Long"/>
+        /// For FullTextSortable use <see cref="SortType.String"/> and for DateTime use <see cref="SortType.Long"/>.
         /// </remarks>
         SortType SortType { get; set; }
 
         /// <summary>
-        /// If true the result are sorted in acending order. If false the result is sorted in decending order.
+        /// Gets or sets the order by which the results should be sorted. Possible values are <see cref="SortOrder.Ascending"/> and <see cref="Essentials.Collections.SortOrder.Descending"/>.
         /// </summary>
-        bool SortAcending { get; set; }
+        SortOrder SortOrder { get; set; }
+
     }
+
 }

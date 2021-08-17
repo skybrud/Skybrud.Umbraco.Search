@@ -7,6 +7,7 @@ using System.Text;
 using System.Web;
 using Examine;
 using Examine.Search;
+using Skybrud.Essentials.Collections;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Models;
@@ -76,23 +77,23 @@ namespace Skybrud.Umbraco.Search {
             // Create a new Examine query
             IQuery query = CreateQuery(searcher, options);
 
+            // Get the boolean operation via the options class
+            IBooleanOperation operation = options.GetBooleanOperation(this, searcher, query);
+
+            // Cast the operation to IQueryExecutor
+            IQueryExecutor executor = operation;
+
             // If "options" implements the interface, results should be sorted
-            if(options is ISortOptions sortOptions)
-            {
-                if (sortOptions.SortAcending)
-                {
-                    query.Field(sortOptions.SortField, sortOptions.SortType).OrderBy(new SortableField(sortOptions.SortField, sortOptions.SortType));
-                }
-                else
-                {
-                    query.Field(sortOptions.SortField, sortOptions.SortType).OrderByDescending(new SortableField(sortOptions.SortField, sortOptions.SortType));
+            if (options is ISortOptions sortOptions) {
+                if (sortOptions.SortOrder == SortOrder.Ascending) {
+                    executor = operation.OrderBy(new SortableField(sortOptions.SortField, sortOptions.SortType));
+                } else {
+                    executor = operation.OrderByDescending(new SortableField(sortOptions.SortField, sortOptions.SortType));
                 }
             }
 
             // Make the search in Examine
-            ISearchResults allResults = options
-                .GetBooleanOperation(this, searcher, query)
-                .Execute(int.MaxValue);
+            ISearchResults allResults = executor.Execute(int.MaxValue);
 
             long total = allResults.TotalItemCount;
 
