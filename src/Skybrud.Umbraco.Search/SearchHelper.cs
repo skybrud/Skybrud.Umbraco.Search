@@ -76,6 +76,19 @@ namespace Skybrud.Umbraco.Search {
             // Create a new Examine query
             IQuery query = CreateQuery(searcher, options);
 
+            // If "options" implements the interface, results should be sorted
+            if(options is ISortOptions sortOptions)
+            {
+                if (sortOptions.SortAcending)
+                {
+                    query.Field(sortOptions.SortField, sortOptions.SortType).OrderBy(new SortableField(sortOptions.SortField, sortOptions.SortType));
+                }
+                else
+                {
+                    query.Field(sortOptions.SortField, sortOptions.SortType).OrderByDescending(new SortableField(sortOptions.SortField, sortOptions.SortType));
+                }
+            }
+
             // Make the search in Examine
             ISearchResults allResults = options
                 .GetBooleanOperation(this, searcher, query)
