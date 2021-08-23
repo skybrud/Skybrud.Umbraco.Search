@@ -8,6 +8,9 @@ using Umbraco.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search {
     
+    /// <summary>
+    /// Interface describing a helper class for making Examine searches. See the <see cref="SearchHelper"/> class for a concrete implementation.
+    /// </summary>
     public interface ISearchHelper {
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace Skybrud.Umbraco.Search {
         /// Removes diacritics in the specified <paramref name="input"/> string.
         /// </summary>
         /// <param name="input">The string.</param>
-        /// <returns>The result of the replacement.</returns>
+        /// <returns>The result of the operation.</returns>
         string RemoveDiacritics(string input);
 
     }

@@ -20,8 +20,13 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Web;
 
+// ReSharper disable SuspiciousTypeConversion.Global
+
 namespace Skybrud.Umbraco.Search {
 
+    /// <summary>
+    /// Helper class for making Examine searches.
+    /// </summary>
     public class SearchHelper : ISearchHelper {
 
         private readonly IExamineManager _examine;
@@ -32,6 +37,9 @@ namespace Skybrud.Umbraco.Search {
 
         #region Properties
 
+        /// <summary>
+        /// Dictionary describing how certain characters should be replaced in search queries.
+        /// </summary>
         protected Dictionary<char, string> Diacritics { get; } = new Dictionary<char, string> {
             
             // Examine/Lucene converts "æ" to "ae"
@@ -51,6 +59,12 @@ namespace Skybrud.Umbraco.Search {
 
         #region Constructors
 
+        /// <summary>
+        /// Initializes a new instance based on the specified services.
+        /// </summary>
+        /// <param name="examine">The current Examine manager.</param>
+        /// <param name="logger">The current Umbraco logger.</param>
+        /// <param name="umbracoContextAccessor">The current Umbraco context accessor.</param>
         public SearchHelper(IExamineManager examine, ILogger logger, IUmbracoContextAccessor umbracoContextAccessor) {
             _examine = examine;
             _logger = logger;
@@ -60,6 +74,93 @@ namespace Skybrud.Umbraco.Search {
         #endregion
 
         #region Member methods
+
+        /// <summary>
+        /// Performs a search using the specified <paramref name="sortOptions"/>.
+        /// </summary>
+        /// <param name="operation">The boolean operation the search should be based on.</param>
+        /// <param name="sortOptions">The sort options specyfing how the results should be sorted.</param>
+        /// <param name="results">The results of the search.</param>
+        /// <param name="total">The total amount of results returned by the search.</param>
+        protected virtual void Execute(IBooleanOperation operation, ISortOptions sortOptions, out IEnumerable<ISearchResult> results, out long total) {
+            
+            // Cast the boolean operation to IQueryExecutor
+            IQueryExecutor executor = operation;
+            
+            // If "SortField" doesn't specified, we don't apply any sorting
+            if (!string.IsNullOrWhiteSpace(sortOptions.SortField)) {
+
+                switch (sortOptions.SortOrder) {
+
+                    case SortOrder.Ascending:
+                        executor = operation.OrderBy(new SortableField(sortOptions.SortField, sortOptions.SortType));
+                        break;
+
+                    case SortOrder.Descending:
+                        executor = operation.OrderByDescending(new SortableField(sortOptions.SortField, sortOptions.SortType));
+                        break;
+
+                    default:
+                        throw new Exception($"Unsupported sort order: {sortOptions.SortOrder}");
+
+                }
+
+            }
+
+            if (sortOptions is IOffsetOptions offset) {
+
+                ISearchResults allResults = executor.Execute();
+                    
+                // Update the total amount of results
+                total = allResults.TotalItemCount;
+
+                // Apply limit and offset
+                results = allResults
+                    .Skip(offset.Offset)
+                    .Take(offset.Limit);
+
+            } else {
+
+                // Since no offset or limit is specified, we request all results
+                ISearchResults allResults = executor.Execute(int.MaxValue);
+                    
+                // Update the total amount of results
+                total = allResults.TotalItemCount;
+
+                // Update "results" with the value of "allResults" as we're not filtering the results
+                results = allResults;
+
+            }
+
+        }
+        
+        /// <summary>
+        /// Performs a search using the specified <paramref name="options"/>.
+        /// </summary>
+        /// <param name="operation">The boolean operation the search should be based on.</param>
+        /// <param name="options">The options specyfing how the results should be sorted.</param>
+        /// <param name="results">The results of the search.</param>
+        /// <param name="total">The total amount of results returned by the search.</param>
+        protected virtual void Execute(IBooleanOperation operation, ISearchOptions options, out IEnumerable<ISearchResult> results, out long total) {
+            
+            // Cast the boolean operation to IQueryExecutor
+            IQueryExecutor executor = operation;
+ 
+            // Start the search in Examine
+            ISearchResults allResults = executor.Execute(int.MaxValue);
+
+            // Update the total amount of results
+            total = allResults.TotalItemCount;
+
+            results = allResults;
+
+            // If "options" implements the interface, results are sorted using the "Sort" method
+            if (options is IPostSortOptions postSort) results = postSort.Sort(results);
+
+            // If "options" implements implement the interface, the results are paginated
+            if (options is IOffsetOptions offset) results = results.Skip(offset.Offset).Take(offset.Limit);
+
+        }
 
         /// <summary>
         /// Performs a search using the specified <paramref name="options"/> and returns the result of that search.
@@ -76,35 +177,30 @@ namespace Skybrud.Umbraco.Search {
 
             // Create a new Examine query
             IQuery query = CreateQuery(searcher, options);
-
+            
             // Get the boolean operation via the options class
             IBooleanOperation operation = options.GetBooleanOperation(this, searcher, query);
+            
+            // Declare some variables
+            long total;
+            IEnumerable<ISearchResult> results;
 
-            // Cast the operation to IQueryExecutor
-            IQueryExecutor executor = operation;
+            switch (options) {
 
-            // If "options" implements the interface, results should be sorted
-            if (options is ISortOptions sortOptions) {
-                if (sortOptions.SortOrder == SortOrder.Ascending) {
-                    executor = operation.OrderBy(new SortableField(sortOptions.SortField, sortOptions.SortType));
-                } else {
-                    executor = operation.OrderByDescending(new SortableField(sortOptions.SortField, sortOptions.SortType));
-                }
+                case IExecuteOptions execute:
+                    execute.Execute(operation, out results, out total);
+                    break;
+
+                case ISortOptions sortOptions:
+                    Execute(operation, sortOptions, out results, out total);
+                    break;
+
+                default:
+                    Execute(operation, options, out results, out total);
+                    break;
+                
             }
-
-            // Make the search in Examine
-            ISearchResults allResults = executor.Execute(int.MaxValue);
-
-            long total = allResults.TotalItemCount;
-
-            IEnumerable<ISearchResult> results = allResults;
-
-            // If "options" implements the interface, results are sorted using the "Sort" method
-            if (options is IPostSortOptions s) results = s.Sort(results);
-
-            // If "options" implements implement the interface, the results are paginated
-            if (options is IOffsetOptions o) results = results.Skip(o.Offset).Take(o.Limit);
-
+            
             sw.Stop();
 
             if (options is IDebugSearchOptions debug && debug.IsDebug) {
@@ -274,7 +370,12 @@ namespace Skybrud.Umbraco.Search {
             return sb.ToString().Normalize(NormalizationForm.FormC);
 
         }
-
+        
+        /// <summary>
+        /// Removes diacritics in the specified <paramref name="input"/> string.
+        /// </summary>
+        /// <param name="input">The string.</param>
+        /// <returns>The result of the operation.</returns>
         public virtual string RemoveDiacritics(string input) {
 
             // See: http://www.levibotelho.com/development/c-remove-diacritics-accents-from-a-string/
