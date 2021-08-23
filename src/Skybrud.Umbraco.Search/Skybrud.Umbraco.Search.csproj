@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <RootNamespace>Skybrud.Umbraco.Search</RootNamespace>
-    <Version>3.0.0-beta008</Version>
+    <Version>3.0.0-beta009</Version>
     <Company>Skybrud.dk a/s</Company>
     <Product>Skybrud.Umbraco.Search</Product>
     <Authors>Anders Bjerner</Authors>
