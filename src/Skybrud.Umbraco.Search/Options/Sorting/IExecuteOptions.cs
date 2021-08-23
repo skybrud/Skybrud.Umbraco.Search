@@ -9,7 +9,7 @@ namespace Skybrud.Umbraco.Search.Options.Sorting {
     /// </summary>
     public interface IExecuteOptions : ISearchOptions {
 
-        void Execute(IQueryExecutor executor, out IEnumerable<ISearchResult> results, out long total);
+        void Execute(IBooleanOperation operation, out IEnumerable<ISearchResult> results, out long total);
 
     }
 
