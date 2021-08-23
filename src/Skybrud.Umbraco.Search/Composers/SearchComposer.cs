@@ -10,11 +10,10 @@ namespace Skybrud.Umbraco.Search.Composers {
 
             // Set up dependency injection
             composition.Register<ISearchHelper, SearchHelper>();
-            composition.Register<IndexingHelper>();
+            composition.Register<IIndexingHelper, IndexingHelper>();
 
         }
 
     }
-
 
 }

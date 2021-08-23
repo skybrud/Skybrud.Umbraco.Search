@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Web;
@@ -12,49 +13,48 @@ using Umbraco.Web;
 
 namespace Skybrud.Umbraco.Search.Indexing {
  
-    public class IndexingHelper {
-
-        /// <summary>
-        /// Returns a textual representation of the specified published <paramref name="element"/>.
-        /// </summary>
-        /// <param name="element">An instance of <see cref="IPublishedElement"/>.</param>
-        /// <returns>The textual representation</returns>
-        public virtual string GetSearchableText(IPublishedElement element) {
+    /// <summary>
+    /// Helper class to aid in various indexing tasks.
+    /// </summary>
+    public class IndexingHelper : IIndexingHelper {
+        
+        /// <inheritdoc />
+        public virtual string GetSearchableText(object value, string culture = null, string segment = null) {
             StringBuilder sb = new StringBuilder();
-            using (TextWriter writer = new StringWriter(sb)) WriteElement(writer, element);
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Returns a textual representation of the specified <paramref name="blockList"/>.
-        /// </summary>
-        /// <param name="blockList">An instance of <see cref="BlockListModel"/>.</param>
-        /// <returns>The textual representation</returns>
-        public virtual string GetSearchableText(BlockListModel blockList) {
-            StringBuilder sb = new StringBuilder();
-            using (TextWriter writer = new StringWriter(sb)) WriteBlockList(writer, blockList);
+            using (TextWriter writer = new StringWriter(sb)) WriteValue(writer, value, culture, segment);
             return sb.ToString();
         }
         
-        /// <summary>
-        /// Returns a textual representation of the specified <paramref name="token"/>.
-        /// </summary>
-        /// <param name="token">An instance of <see cref="JToken"/>.</param>
-        /// <returns>The textual representation</returns>
-        public virtual string GetSearchableText(JToken token) {
+        /// <inheritdoc />
+        public virtual string GetSearchableText(IPublishedElement element, string culture = null, string segment = null) {
             StringBuilder sb = new StringBuilder();
-            using (TextWriter writer = new StringWriter(sb)) WriteJsonToken(writer, token);
+            using (TextWriter writer = new StringWriter(sb)) WriteElement(writer, element, culture, segment);
             return sb.ToString();
         }
-
-        /// <summary>
-        /// Appends a textual representation of the specified <paramref name="value"/> to <paramref name="writer"/>.
-        ///
-        /// Values that appear to be containing one or more UDIs will be ignored. Values that appear to be JSON will be parsed 
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="value">The value.</param>
-        public virtual void WriteString(TextWriter writer, string value) {
+        
+        /// <inheritdoc />
+        public virtual string GetSearchableText(BlockListModel blockList, string culture = null, string segment = null) {
+            StringBuilder sb = new StringBuilder();
+            using (TextWriter writer = new StringWriter(sb)) WriteBlockList(writer, blockList, culture, segment);
+            return sb.ToString();
+        }
+        
+        /// <inheritdoc />
+        public virtual string GetSearchableText(BlockListItem blockListItem, string culture = null, string segment = null) {
+            StringBuilder sb = new StringBuilder();
+            using (TextWriter writer = new StringWriter(sb)) WriteBlockListItem(writer, blockListItem, culture, segment);
+            return sb.ToString();
+        }
+        
+        /// <inheritdoc />
+        public virtual string GetSearchableText(JToken token, string culture = null, string segment = null) {
+            StringBuilder sb = new StringBuilder();
+            using (TextWriter writer = new StringWriter(sb)) WriteJsonToken(writer, token, culture, segment);
+            return sb.ToString();
+        }
+        
+        /// <inheritdoc />
+        public virtual void WriteString(TextWriter writer, string value, string culture = null, string segment = null) {
 
             // Nothing to index if the value is empty
             if (string.IsNullOrEmpty(value)) return;
@@ -72,59 +72,58 @@ namespace Skybrud.Umbraco.Search.Indexing {
             writer.WriteLine(StringUtils.StripHtml(value));
 
         }
-
-        /// <summary>
-        /// Appends a textual representation of the value of <paramref name="property"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="owner">The parent <see cref="IPublishedElement"/> of <paramref name="property"/>.</param>
-        /// <param name="property">The property.</param>
-        public virtual void WriteProperty(TextWriter writer, IPublishedElement owner, IPublishedProperty property) {
-            WriteValue(writer, property.Value());
+        
+        /// <inheritdoc />
+        public virtual void WriteProperty(TextWriter writer, IPublishedElement owner, IPublishedProperty property, string culture = null, string segment = null) {
+            WriteValue(writer, property.Value(culture, segment));
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified published <paramref name="element"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="element">The instance of <see cref="IPublishedElement"/> to append.</param>
-        public virtual void WriteElement(TextWriter writer, IPublishedElement element) {
+        /// <inheritdoc />
+        public virtual void WriteElement(TextWriter writer, IPublishedElement element, string culture = null, string segment = null) {
 
-            if (element == null) return;
+            switch (element) {
+                
+                case null:
+                    return;
 
-            if (element is IPublishedContent content) {
-                writer.WriteLine(content.Name);
+                case ISearchableText st:
+                    st.WriteSearchableText(writer, culture, segment);
+                    return;
+
+                case ISearchableTextHelper sth:
+                    sth.WriteSearchableText(this, writer, culture, segment);
+                    return;
+               
+                case IPublishedContent content:
+                    writer.WriteLine(content.Name(culture));
+                    break;
+
             }
 
             foreach (IPublishedProperty property in element.Properties) {
 
-                WriteProperty(writer, element, property);
+                WriteProperty(writer, element, property, culture, segment);
 
             }
 
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified <paramref name="blockList"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="blockList">The instance of <see cref="BlockListModel"/> to append.</param>
-        public virtual void WriteBlockList(TextWriter writer, BlockListModel blockList) {
-
+        /// <inheritdoc />
+        public virtual void WriteBlockList(TextWriter writer, BlockListModel blockList, string culture = null, string segment = null) {
             if (blockList == null) return;
-
             foreach (BlockListItem block in blockList) {
-                WriteElement(writer, block.Content);
+                WriteBlockListItem(writer, block, culture, segment);
             }
-
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified JSON <paramref name="token"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="token">The instance of <see cref="JToken"/> to append.</param>
-        public virtual void WriteJsonToken(TextWriter writer, JToken token) {
+        /// <inheritdoc />
+        public virtual void WriteBlockListItem(TextWriter writer, BlockListItem blockListItem, string culture = null, string segment = null) {
+            if (blockListItem == null) return;
+            WriteElement(writer, blockListItem.Content, culture, segment);
+        }
+        
+        /// <inheritdoc />
+        public virtual void WriteJsonToken(TextWriter writer, JToken token, string culture = null, string segment = null) {
 
             // Check the type of "token" to detect null values, objects and arrays
             switch (token) {
@@ -133,11 +132,11 @@ namespace Skybrud.Umbraco.Search.Indexing {
                     return;
                 
                 case JObject obj:
-                    WriteJsonObject(writer, obj);
+                    WriteJsonObject(writer, obj, culture, segment);
                     return;
 
                 case JArray array:
-                    WriteJsonArray(writer, array);
+                    WriteJsonArray(writer, array, culture, segment);
                     return;
 
             }
@@ -146,19 +145,15 @@ namespace Skybrud.Umbraco.Search.Indexing {
             switch (token.Type) {
                 
                 case JTokenType.String:
-                    WriteString(writer, token.Value<string>());
+                    WriteString(writer, token.Value<string>(), culture, segment);
                     return;
 
             }
 
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified <paramref name="json"/> object to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="json">The instance of <see cref="JObject"/> to append.</param>
-        protected virtual void WriteJsonObject(TextWriter writer, JObject json) {
+        /// <inheritdoc />
+        public virtual void WriteJsonObject(TextWriter writer, JObject json, string culture = null, string segment = null) {
 
             foreach (JProperty prop in json.Properties()) {
 
@@ -171,7 +166,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
 
                     // For all other properties, run through normal index logic
                     default:
-                        WriteJsonToken(writer, prop.Value);
+                        WriteJsonToken(writer, prop.Value, culture, segment);
                         break;
 
                 }
@@ -180,31 +175,31 @@ namespace Skybrud.Umbraco.Search.Indexing {
 
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified JSON <paramref name="array"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="array">The instance of <see cref="JArray"/> to append.</param>
-        protected virtual void WriteJsonArray(TextWriter writer, JArray array) {
+        /// <inheritdoc />
+        public virtual void WriteJsonArray(TextWriter writer, JArray array, string culture = null, string segment = null) {
             if (array == null) return;
-            foreach (JToken item in array) WriteJsonToken(writer, item);
+            foreach (JToken item in array) WriteJsonToken(writer, item, culture, segment);
         }
         
-        /// <summary>
-        /// Appends a textual representation of the specified <paramref name="value"/> to <paramref name="writer"/>.
-        /// </summary>
-        /// <param name="writer">The writer to write to.</param>
-        /// <param name="value">The value.</param>
-        public virtual void WriteValue(TextWriter writer, object value) {
+        /// <inheritdoc />
+        public virtual void WriteValue(TextWriter writer, object value, string culture = null, string segment = null) {
 
             switch (value) {
 
+                case ISearchableText st:
+                    st.WriteSearchableText(writer, culture, segment);
+                    break;
+
+                case ISearchableTextHelper sth:
+                    sth.WriteSearchableText(this, writer, culture, segment);
+                    break;
+
                 case string str:
-                    WriteString(writer, str);
+                    WriteString(writer, str, culture, segment);
                     break;
 
                 case JToken json:
-                    WriteJsonToken(writer, json);
+                    WriteJsonToken(writer, json, culture, segment);
                     break;
 
                 case IHtmlString html:
@@ -212,15 +207,15 @@ namespace Skybrud.Umbraco.Search.Indexing {
                     break;
 
                 case BlockListModel blockList:
-                    WriteBlockList(writer, blockList);
+                    WriteBlockList(writer, blockList, culture, segment);
                     break;
 
                 case IPublishedElement element:
-                    WriteElement(writer, element);
+                    WriteElement(writer, element, culture, segment);
                     break;
 
                 case IEnumerable<IPublishedElement> collection:
-                    foreach (var element in collection) WriteElement(writer, element);
+                    foreach (IPublishedElement element in collection) WriteElement(writer, element, culture, segment);
                     break;
 
             }
