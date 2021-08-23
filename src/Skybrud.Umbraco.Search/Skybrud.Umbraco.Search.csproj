@@ -29,8 +29,8 @@
     </PackageReference>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(ConfigurationName)' != ''">
-    <DocumentationFile>bin\$(ConfigurationName)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  <PropertyGroup>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(ConfigurationName)'=='Release' AND '$(BuildTools)'=='1'">
