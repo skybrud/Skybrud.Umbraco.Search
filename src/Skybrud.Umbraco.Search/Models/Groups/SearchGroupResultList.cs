@@ -11,6 +11,9 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         [JsonProperty("name")]
         public string Name { get; }
 
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public string Type { get; }
+
         [JsonProperty("total")]
         public long Total { get; }
 
@@ -26,6 +29,7 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         public SearchGroupResultList(SearchGroup group, int limit, long offset, long total, IEnumerable<object> items) {
             Id = group.Id;
             Name = group.Name;
+            Type = group.Type;
             Total = total;
             Limit = limit;
             Offset = offset;
