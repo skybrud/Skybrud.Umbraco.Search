@@ -42,6 +42,11 @@ namespace Skybrud.Umbraco.Search.Options {
             return string.Join($" {Type.ToUpper()} ", from item in List select item.ToString());
         }
 
+        /// <inheritdoc />
+        public override string ToString() {
+            return GetRawQuery();
+        }
+
         /// <summary>
         /// Adds a new sub query to the query list.
         /// </summary>
