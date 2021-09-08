@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Examine;
 using Skybrud.Essentials.Strings;
+using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Indexing;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
@@ -246,6 +247,69 @@ namespace Skybrud.Umbraco.Search.Extensions {
             } catch (Exception ex) {
                 logger.Error(typeof(ExamineIndexingExtensions), ex, "Failed indexing block list in property {Property} on page with ID {Id}.", key, content.Id);
             }
+
+        }
+        
+        /// <summary>
+        /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden (excluded) from search results.
+        /// </summary>
+        /// <param name="e"></param>
+        public static void AddHideFromSearch(this IndexingItemEventArgs e) {
+            AddHideFromSearch(e, default(HashSet<int>));
+        }
+        
+        /// <summary>
+        /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
+        /// (excluded) from search results.
+        ///
+        /// The <paramref name="ignoreId"/> parameter can be used to specify an area of the website that should
+        /// automatically be hidden from search results. This is done by checking whether the ID of the
+        /// <paramref name="ignoreId"/> parameter is part of the <c>path</c> field of the valueset for the current node.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="ignoreId">The ID for which the node itself and it's descendants should be hidden.</param>
+        public static void AddHideFromSearch(this IndexingItemEventArgs e, int ignoreId) {
+            AddHideFromSearch(e, new HashSet<int> { ignoreId });
+        }
+        
+        /// <summary>
+        /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
+        /// (excluded) from search results.
+        ///
+        /// The <paramref name="ignoreIds"/> parameter can be used to specify areas of the website that should
+        /// automatically be hidden from search results. This is done by checking whether at least one of the IDs the
+        /// <paramref name="ignoreIds"/> parameter is part of the <c>path</c> field of the valueset for the current node.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="ignoreIds">The IDs for which it self and it's descendants should be hidden.</param>
+        public static void AddHideFromSearch(this IndexingItemEventArgs e, params int[] ignoreIds) {
+            AddHideFromSearch(e, new HashSet<int>(ignoreIds));
+        }
+        
+        /// <summary>
+        /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
+        /// (excluded) from search results.
+        ///
+        /// The <paramref name="ignoreIds"/> parameter can be used to specify areas of the website that should
+        /// automatically be hidden from search results. This is done by checking whether at least one of the IDs the
+        /// <paramref name="ignoreIds"/> parameter is part of the <c>path</c> field of the valueset for the current node.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="ignoreIds">The IDs for which it self and it's descendants should be hidden.</param>
+        public static void AddHideFromSearch(this IndexingItemEventArgs e, HashSet<int> ignoreIds) {
+            
+            e.ValueSet.Values.TryGetValue(ExamineConstants.Fields.Path, out List<object> objList);
+            int[] ids = StringUtils.ParseInt32Array(objList?.FirstOrDefault()?.ToString());
+
+            if (ids.Any(ignoreIds.Contains)) {
+                e.ValueSet.Set(ExamineConstants.Fields.HideFromSearch, "1");
+                return;
+            }
+            
+            if (e.ValueSet.Values.ContainsKey(ExamineConstants.Fields.HideFromSearch)) return;
+
+            // create empty value
+            e.ValueSet.TryAdd(ExamineConstants.Fields.HideFromSearch, "0");
 
         }
 
