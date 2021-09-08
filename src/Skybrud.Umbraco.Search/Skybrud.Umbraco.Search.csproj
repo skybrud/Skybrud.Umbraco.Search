@@ -12,7 +12,6 @@
     <Authors>Anders Bjerner</Authors>
     <Copyright>Copyright © 2021</Copyright>
     <Description>Search package for Umbraco 8.</Description>
-    <RepositoryUrl>https://github.com/skybrud/Skybrud.Umbraco.Search</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,6 +19,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/skybrud/Skybrud.Umbraco.Search</PackageProjectUrl>
     <PackageIconUrl>https://www.skybrud.dk/img/5431sk/icon/favicon.ico</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/skybrud/Skybrud.Umbraco.Search</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
