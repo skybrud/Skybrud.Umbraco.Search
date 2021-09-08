@@ -30,7 +30,7 @@ namespace Skybrud.Umbraco.Search.Options {
         }
 
         public static T AppendHideFromSearch<T>(this T list) where T : QueryList {
-            list?.Add("hideFromSearch:0");
+            list?.Add($"{ExamineConstants.Fields.HideFromSearch}:0");
             return list;
         }
 
@@ -40,6 +40,7 @@ namespace Skybrud.Umbraco.Search.Options {
         }
 
         public static T AppendAncestors<T>(this T list, params int[] ancestorIds) where T : QueryList {
+            if (ancestorIds == null || ancestorIds.Length == 0) return list;
             list?.Add($"{ExamineConstants.Fields.PathSearch}:({string.Join(" ", from id in ancestorIds select id)})");
             return list;
         }
