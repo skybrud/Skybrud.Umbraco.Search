@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using Skybrud.Essentials.Json;
-using Skybrud.Essentials.Strings;
 using Umbraco.Core;
 using Umbraco.Core.Models.Blocks;
 using Umbraco.Core.Models.PublishedContent;
@@ -69,7 +68,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
             }
 
             // Strip the HTML from "value" and append it to the writer
-            writer.WriteLine(StringUtils.StripHtml(value));
+            writer.WriteLine(StripHtml(value));
 
         }
         
@@ -203,7 +202,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
                     break;
 
                 case IHtmlString html:
-                    writer.WriteLine(StringUtils.StripHtml(html.ToString()));
+                    writer.WriteLine(StripHtml(html.ToString()));
                     break;
 
                 case BlockListModel blockList:
@@ -220,6 +219,15 @@ namespace Skybrud.Umbraco.Search.Indexing {
 
             }
 
+        }
+
+        /// <summary>
+        /// Strips the HTML from the specified <paramref name="value"/>.
+        /// </summary>
+        /// <param name="value">The HTML value to be stripped.</param>
+        /// <returns>The value stripped for HTML.</returns>
+        protected virtual string StripHtml(string value) {
+            return HttpUtility.HtmlDecode(Regex.Replace(value, "<.*?>", " "));
         }
 
     }
