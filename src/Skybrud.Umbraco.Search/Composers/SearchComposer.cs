@@ -4,6 +4,7 @@ using Umbraco.Core.Composing;
 
 namespace Skybrud.Umbraco.Search.Composers {
 
+    [RuntimeLevel(MinLevel = RuntimeLevel.Boot)]
     public class SearchComposer : IUserComposer {
 
         public void Compose(Composition composition) {
