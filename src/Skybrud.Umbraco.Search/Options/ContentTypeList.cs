@@ -39,7 +39,7 @@ namespace Skybrud.Umbraco.Search.Options {
         public void AddRange(IEnumerable<string> contentTypes) {
             _contentTypes.AddRange(contentTypes);
         }
-        
+
         public IEnumerator<string> GetEnumerator() {
             return _contentTypes.GetEnumerator();
         }

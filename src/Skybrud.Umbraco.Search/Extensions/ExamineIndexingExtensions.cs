@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Examine;
+﻿using Examine;
 using Microsoft.Extensions.Logging;
 using Skybrud.Essentials.Strings;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Indexing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Web;
 using Umbraco.Extensions;
 
 namespace Skybrud.Umbraco.Search.Extensions {
@@ -192,12 +190,12 @@ namespace Skybrud.Umbraco.Search.Extensions {
                     e.ValueSet.TryAdd($"{key}_range", dt.ToString(format));
                     break;
 
-                // TODO: Any other types we should handle?
+                    // TODO: Any other types we should handle?
 
             }
 
         }
-        
+
         /// <summary>
         /// Adds a textual representation of the block list value from property with the specified <paramref name="key"/>.
         /// </summary>
@@ -220,7 +218,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
             IndexBlockList(e, logger, indexingHelper, content, key, newKey, newKeySuffix);
 
         }
-        
+
         /// <summary>
         /// Adds a textual representation of the block list value from property with the specified <paramref name="key"/>.
         /// </summary>
@@ -242,7 +240,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
 
             // Determine the new key
             newKey = newKey ?? $"{key}{newKeySuffix ?? "_search"}";
-            
+
             // Get the searchable text via the indexing helper
             try {
                 string text = indexingHelper.GetSearchableText(blockList);
@@ -252,7 +250,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
             }
 
         }
-        
+
         /// <summary>
         /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden (excluded) from search results.
         /// </summary>
@@ -260,7 +258,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         public static void AddHideFromSearch(this IndexingItemEventArgs e) {
             AddHideFromSearch(e, default(HashSet<int>));
         }
-        
+
         /// <summary>
         /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
         /// (excluded) from search results.
@@ -274,7 +272,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         public static void AddHideFromSearch(this IndexingItemEventArgs e, int ignoreId) {
             AddHideFromSearch(e, new HashSet<int> { ignoreId });
         }
-        
+
         /// <summary>
         /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
         /// (excluded) from search results.
@@ -288,7 +286,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         public static void AddHideFromSearch(this IndexingItemEventArgs e, params int[] ignoreIds) {
             AddHideFromSearch(e, new HashSet<int>(ignoreIds));
         }
-        
+
         /// <summary>
         /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden
         /// (excluded) from search results.
@@ -300,7 +298,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="e"></param>
         /// <param name="ignoreIds">The IDs for which it self and it's descendants should be hidden.</param>
         public static void AddHideFromSearch(this IndexingItemEventArgs e, HashSet<int> ignoreIds) {
-            
+
             e.ValueSet.Values.TryGetValue(ExamineConstants.Fields.Path, out List<object> objList);
             int[] ids = StringUtils.ParseInt32Array(objList?.FirstOrDefault()?.ToString());
 
@@ -308,7 +306,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
                 e.ValueSet.Set(ExamineConstants.Fields.HideFromSearch, "1");
                 return;
             }
-            
+
             if (e.ValueSet.Values.ContainsKey(ExamineConstants.Fields.HideFromSearch)) return;
 
             // create empty value

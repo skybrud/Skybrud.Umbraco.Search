@@ -1,13 +1,12 @@
-﻿using System.Collections;
+﻿using Lucene.Net.QueryParsers.Classic;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Lucene.Net.QueryParsers;
-using Lucene.Net.QueryParsers.Classic;
 
 namespace Skybrud.Umbraco.Search.Options.Fields {
 
     public class FieldList : IEnumerable<Field> {
-        
+
         private readonly List<Field> _fields;
 
         #region Properties
@@ -18,7 +17,7 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
         /// Gets the amount of fields added to to the list.
         /// </summary>
         public int Count => _fields?.Count ?? 0;
-        
+
         /// <summary>
         /// Returns whether at least one field has a boost value.
         /// </summary>
@@ -145,7 +144,7 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
                 string t = "(";
 
                 if (IsValid) {
-                    
+
                     // Boost
                     if (HasBoostValues) {
                         t += string.Join(" OR ", _fields.Where(x => x.Boost != null).Select(fieldOption => string.Format("{0}:({1} {1}*)^{2}", fieldOption.FieldName, escapedTerm, fieldOption.Boost.ToString())).ToArray());
@@ -170,7 +169,7 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
             return string.Join(" AND ", searchTerms.ToArray());
 
         }
-        
+
         public IEnumerator<Field> GetEnumerator() {
             return _fields.GetEnumerator();
         }

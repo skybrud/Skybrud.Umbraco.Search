@@ -1,5 +1,5 @@
 ﻿namespace Skybrud.Umbraco.Search.Constants {
-    
+
     public static class ExamineConstants {
 
         public const string ExternalIndexName = global::Umbraco.Cms.Core.Constants.UmbracoIndexes.ExternalIndexName;

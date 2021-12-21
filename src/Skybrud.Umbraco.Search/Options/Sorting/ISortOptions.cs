@@ -1,14 +1,14 @@
-﻿using Examine.Search;
-using Examine;
+﻿using Examine;
+using Examine.Search;
 using Skybrud.Essentials.Collections;
 
 namespace Skybrud.Umbraco.Search.Options.Sorting {
-    
+
     /// <summary>
     /// Interface used for decribing how a collection of <see cref="ISearchResult"/> should be sorted during the search.
     /// </summary>
     public interface ISortOptions : ISearchOptions {
-        
+
         /// <summary>
         /// The property field to sort after.
         /// </summary>

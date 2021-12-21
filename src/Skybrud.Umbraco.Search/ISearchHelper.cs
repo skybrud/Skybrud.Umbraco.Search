@@ -1,14 +1,13 @@
-﻿using System;
-using System.Web;
-using Examine;
+﻿using Examine;
 using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
+using System;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search {
-    
+
     /// <summary>
     /// Interface describing a helper class for making Examine searches. See the <see cref="SearchHelper"/> class for a concrete implementation.
     /// </summary>

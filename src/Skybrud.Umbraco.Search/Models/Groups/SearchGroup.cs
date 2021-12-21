@@ -1,7 +1,6 @@
-﻿using System;
-using System.Web;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Options.Groups;
+using System;
 
 namespace Skybrud.Umbraco.Search.Models.Groups {
 
@@ -9,20 +8,20 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
     /// Class representing a search group in a grouped search.
     /// </summary>
     public class SearchGroup {
-        
+
         /// <summary>
         /// Gets the numeric ID of the group. The ID should primarily be used in the communication between the frontend
         /// and the backend API - eg. to indicate which groups should be shown or which groups have been selected by
         /// the user.
         /// </summary>
         public int Id { get; }
-        
+
         /// <summary>
         /// Gets the friendly name of the search group. May or may not be localized depending on the implementation in
         /// the Umbraco solution.
         /// </summary>
         public string Name { get; }
-        
+
         /// <summary>
         /// Gets the type of the group. The type may be used to indicate the type of results that are returned in this
         /// group - eg. a site may have a one group for regular news articles and another for press releases, but if

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Examine;
+using System;
 using System.Globalization;
 using System.Linq;
-using Examine;
 
 namespace Skybrud.Umbraco.Search {
 
     public static partial class SearchUtils {
-        
+
         /// <summary>
         /// Static class with various utility and helper methods related to search and sorting.
         /// </summary>
@@ -21,7 +21,7 @@ namespace Skybrud.Umbraco.Search {
             public static DateTime GetSortValueByDateTime(ISearchResult result, string propertyAlias) {
 
                 string dateString = result.GetValues(propertyAlias)?.FirstOrDefault();
-                
+
                 if (!string.IsNullOrWhiteSpace(dateString)) return DateTime.ParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
                 string createdDate = result.GetValues("createDate")?.FirstOrDefault();

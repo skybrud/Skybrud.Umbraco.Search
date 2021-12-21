@@ -1,10 +1,10 @@
-﻿using System.IO;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System.IO;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search.Indexing {
-    
+
     /// <summary>
     /// Interface describin a helper class to aid in various indexing tasks.
     /// </summary>
@@ -45,7 +45,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         /// <param name="segment">The variation segment.</param>
         /// <returns>The textual representation</returns>
         string GetSearchableText(BlockListItem blockListItem, string culture = null, string segment = null);
-        
+
         /// <summary>
         /// Returns a textual representation of the specified <paramref name="token"/>.
         /// </summary>
@@ -75,7 +75,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         /// <param name="culture">The variation language.</param>
         /// <param name="segment">The variation segment.</param>
         void WriteProperty(TextWriter writer, IPublishedElement owner, IPublishedProperty property, string culture = null, string segment = null);
-        
+
         /// <summary>
         /// Appends a textual representation of the specified published <paramref name="element"/> to <paramref name="writer"/>.
         /// </summary>
@@ -84,7 +84,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         /// <param name="culture">The variation language.</param>
         /// <param name="segment">The variation segment.</param>
         void WriteElement(TextWriter writer, IPublishedElement element, string culture = null, string segment = null);
-        
+
         /// <summary>
         /// Appends a textual representation of the specified <paramref name="blockList"/> to <paramref name="writer"/>.
         /// </summary>
@@ -102,7 +102,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         /// <param name="culture">The variation language.</param>
         /// <param name="segment">The variation segment.</param>
         void WriteBlockListItem(TextWriter writer, BlockListItem blockListItem, string culture = null, string segment = null);
-        
+
         /// <summary>
         /// Appends a textual representation of the specified JSON <paramref name="token"/> to <paramref name="writer"/>.
         /// </summary>
@@ -111,7 +111,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         /// <param name="culture">The variation language.</param>
         /// <param name="segment">The variation segment.</param>
         void WriteJsonToken(TextWriter writer, JToken token, string culture = null, string segment = null);
-        
+
         /// <summary>
         /// Appends a textual representation of the specified <paramref name="json"/> object to <paramref name="writer"/>.
         /// </summary>
