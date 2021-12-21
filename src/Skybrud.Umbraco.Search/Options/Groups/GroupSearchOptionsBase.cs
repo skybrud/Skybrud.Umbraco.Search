@@ -1,4 +1,6 @@
-﻿using System.Web;
+﻿using System;
+using System.Web;
+using Microsoft.AspNetCore.Http;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Models.Groups;
 
@@ -12,10 +14,17 @@ namespace Skybrud.Umbraco.Search.Options.Groups {
 
         public int Offset { get; }
 
-        public GroupSearchOptionsBase(SearchGroup group, HttpRequestBase request) {
-            Text = request.QueryString["text"];
-            Limit = request.QueryString[$"l{group.Id}"].ToInt32(group.Limit);
-            Offset = request.QueryString[$"o{group.Id}"].ToInt32();
+        public GroupSearchOptionsBase(SearchGroup group, HttpRequest request) {
+            Limit = group.Limit;
+            if(request.Query.TryGetValue("text", out var textRawValue)) Text = textRawValue.ToString();
+            if (request.Query.TryGetValue($"l{group.Id}", out var limitRawValue))
+            {
+                Limit = Convert.ToInt32(limitRawValue);
+            }
+            if (request.Query.TryGetValue($"o{group.Id}", out var offsetRawValue)) 
+            {
+                Offset = Convert.ToInt32(offsetRawValue);
+            }
         }
 
     }

@@ -112,7 +112,7 @@ namespace Skybrud.Umbraco.Search.Options {
             }
 
             // Get the searcher from the index
-            ISearcher searcher = index.GetSearcher();
+            ISearcher searcher = index.Searcher;
             if (searcher == null) throw new Exception("Examine index {indexName} does not specify a searcher.");
             
             // Return the searcher

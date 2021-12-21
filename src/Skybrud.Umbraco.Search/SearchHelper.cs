@@ -7,6 +7,8 @@ using System.Text;
 using System.Web;
 using Examine;
 using Examine.Search;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Skybrud.Essentials.Collections;
 using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Constants;
@@ -15,10 +17,12 @@ using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web;
+using Umbraco.Extensions;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -122,7 +126,8 @@ namespace Skybrud.Umbraco.Search {
             } else {
 
                 // Since no offset or limit is specified, we request all results
-                ISearchResults allResults = executor.Execute(int.MaxValue);
+                var queryOptions = new QueryOptions(0, int.MaxValue);
+                ISearchResults allResults = executor.Execute(queryOptions);
                     
                 // Update the total amount of results
                 total = allResults.TotalItemCount;
@@ -145,9 +150,10 @@ namespace Skybrud.Umbraco.Search {
             
             // Cast the boolean operation to IQueryExecutor
             IQueryExecutor executor = operation;
- 
+
             // Start the search in Examine
-            ISearchResults allResults = executor.Execute(int.MaxValue);
+            var queryOptions = new QueryOptions(0, int.MaxValue);
+            ISearchResults allResults = executor.Execute(queryOptions);
 
             // Update the total amount of results
             total = allResults.TotalItemCount;
@@ -204,7 +210,7 @@ namespace Skybrud.Umbraco.Search {
             sw.Stop();
 
             if (options is IDebugSearchOptions debug && debug.IsDebug) {
-                _logger.Debug<SearchHelper>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
+                _logger.LogDebug("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
             }
 
             // Wrap the results
@@ -302,20 +308,25 @@ namespace Skybrud.Umbraco.Search {
         protected virtual IPublishedContent GetPublishedContentFromResult(ISearchResult result) {
 
             string indexType = result.GetValues("__IndexType").FirstOrDefault();
+            if (_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
+            {
+                switch (indexType)
+                {
 
-            switch (indexType) {
+                    case "content":
+                        return umbracoContext.Content.GetById(int.Parse(result.Id));
 
-                case "content":
-                    return _umbracoContextAccessor.UmbracoContext.Content.GetById(int.Parse(result.Id));
+                    case "media":
+                    case "pdf":
+                        return umbracoContext.Media.GetById(int.Parse(result.Id));
 
-                case "media":
-                case "pdf":
-                    return _umbracoContextAccessor.UmbracoContext.Media.GetById(int.Parse(result.Id));
+                    default:
+                        return null;
 
-                default:
-                    return null;
-
+                }
             }
+            _logger.LogError("Failed to get Umbraco context");
+            return null;
 
         }
 
@@ -325,18 +336,26 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="request">The request the search should be based on.</param>
         /// <param name="groups">An array of groups to used for the search.</param>
         /// <returns>An instance of <see cref="GroupedSearchResult"/>.</returns>
-        public virtual GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups) {
+        public virtual GroupedSearchResult Search(HttpRequest request, SearchGroup[] groups) {
 
-            int[] selectedGroups = request.QueryString["groups"].ToInt32Array();
+            if(request.Query.TryGetValue("groups", out var selectedGroupsRawValue))
+            {
+                var selectedGroups = selectedGroupsRawValue.TryConvertTo<int[]>();
 
-            IEnumerable<SearchGroupResultList> result = (
-                from x in groups
-                where selectedGroups.Length == 0 || selectedGroups.Contains(x.Id)
-                select x?.Callback(x, request, null)
-            );
+                if (selectedGroups.Success)
+                {
+                    IEnumerable<SearchGroupResultList> result = (
+                        from x in groups
+                        where selectedGroups.Result.Length == 0 || selectedGroups.Result.Contains(x.Id)
+                        select x?.Callback(x, request, null)
+                    );
 
-            return new GroupedSearchResult(result);
+                    return new GroupedSearchResult(result);
+                }
+            }
 
+            _logger.LogError("Groups not found in request");
+            return null;
         }
 
         /// <summary>
@@ -441,7 +460,7 @@ namespace Skybrud.Umbraco.Search {
 
                 default:
                     if (_examine.TryGetIndex(ExamineConstants.ExternalIndexName, out IIndex index)) {
-                        searcher = index.GetSearcher();
+                        searcher = index.Searcher;
                         if (searcher != null) return searcher;
                     }
                     break;

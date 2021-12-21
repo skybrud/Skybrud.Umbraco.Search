@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Options.Groups;
 
 namespace Skybrud.Umbraco.Search.Models.Groups {
@@ -37,7 +38,7 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         /// <summary>
         /// Gets callback method used for making the search for this group.
         /// </summary>
-        public Func<SearchGroup, HttpRequestBase, GroupedSearchOptionsBase, SearchGroupResultList> Callback { get; }
+        public Func<SearchGroup, HttpRequest, GroupedSearchOptionsBase, SearchGroupResultList> Callback { get; }
 
         /// <summary>
         /// Initializes a new search group based on the specified parameters.
@@ -46,7 +47,7 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         /// <param name="name"></param>
         /// <param name="limit"></param>
         /// <param name="callback"></param>
-        public SearchGroup(int id, string name, int limit, Func<SearchGroup, HttpRequestBase, GroupedSearchOptionsBase, SearchGroupResultList> callback) {
+        public SearchGroup(int id, string name, int limit, Func<SearchGroup, HttpRequest, GroupedSearchOptionsBase, SearchGroupResultList> callback) {
             Id = id;
             Name = name;
             Limit = limit;
@@ -61,7 +62,7 @@ namespace Skybrud.Umbraco.Search.Models.Groups {
         /// <param name="type">The type of the group.</param>
         /// <param name="limit">The initial limit of the group.</param>
         /// <param name="callback">The callback method of the group.</param>
-        public SearchGroup(int id, string name, string type, int limit, Func<SearchGroup, HttpRequestBase, GroupedSearchOptionsBase, SearchGroupResultList> callback) {
+        public SearchGroup(int id, string name, string type, int limit, Func<SearchGroup, HttpRequest, GroupedSearchOptionsBase, SearchGroupResultList> callback) {
             Id = id;
             Name = name;
             Type = type;

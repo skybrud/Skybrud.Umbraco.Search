@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 
 namespace Skybrud.Umbraco.Search.Options.Fields {
 
@@ -140,7 +141,7 @@ namespace Skybrud.Umbraco.Search.Options.Fields {
 
             foreach (string term in terms) {
 
-                string escapedTerm = QueryParser.Escape(term);
+                string escapedTerm = QueryParserBase.Escape(term);
                 string t = "(";
 
                 if (IsValid) {

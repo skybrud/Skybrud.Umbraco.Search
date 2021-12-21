@@ -3,12 +3,14 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Microsoft.AspNetCore.Html;
 using Newtonsoft.Json.Linq;
 using Skybrud.Essentials.Json;
-using Umbraco.Core;
-using Umbraco.Core.Models.Blocks;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Models.Blocks;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Web;
+using Umbraco.Extensions;
 
 namespace Skybrud.Umbraco.Search.Indexing {
  
@@ -74,7 +76,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
         
         /// <inheritdoc />
         public virtual void WriteProperty(TextWriter writer, IPublishedElement owner, IPublishedProperty property, string culture = null, string segment = null) {
-            WriteValue(writer, property.Value(culture, segment));
+            WriteValue(writer, property.Value(null, culture, segment));
         }
         
         /// <inheritdoc />
@@ -201,7 +203,7 @@ namespace Skybrud.Umbraco.Search.Indexing {
                     WriteJsonToken(writer, json, culture, segment);
                     break;
 
-                case IHtmlString html:
+                case HtmlString html:
                     writer.WriteLine(StripHtml(html.ToString()));
                     break;
 

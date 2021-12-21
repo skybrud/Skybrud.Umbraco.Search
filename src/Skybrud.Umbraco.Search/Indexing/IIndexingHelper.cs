@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Newtonsoft.Json.Linq;
-using Umbraco.Core.Models.Blocks;
-using Umbraco.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Models.Blocks;
+using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search.Indexing {
     

@@ -1,20 +1,18 @@
-﻿using Skybrud.Umbraco.Search.Indexing;
-using Umbraco.Core;
-using Umbraco.Core.Composing;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Skybrud.Umbraco.Search.Indexing;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.DependencyInjection;
 
 namespace Skybrud.Umbraco.Search.Composers {
 
-    [RuntimeLevel(MinLevel = RuntimeLevel.Boot)]
-    public class SearchComposer : IUserComposer {
+    public class SearchComposer : IComposer {
 
-        public void Compose(Composition composition) {
-
-            // Set up dependency injection
-            composition.Register<ISearchHelper, SearchHelper>();
-            composition.Register<IIndexingHelper, IndexingHelper>();
-
+        public void Compose(IUmbracoBuilder builder)
+        {
+            builder.Services.AddScoped<ISearchHelper, SearchHelper>();
+            builder.Services.AddScoped<IIndexingHelper, IndexingHelper>();
         }
-
     }
 
 }

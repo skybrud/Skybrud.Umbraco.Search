@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Examine;
+using Microsoft.Extensions.Logging;
 using Skybrud.Essentials.Strings;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Indexing;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models.Blocks;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Models.Blocks;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web;
+using Umbraco.Extensions;
 
 namespace Skybrud.Umbraco.Search.Extensions {
 
@@ -142,7 +145,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
             // Parse the UDI's and adds as GUIDs instead (both N and D formats)
             List<string> newValues = new List<string>();
             foreach (string piece in StringUtils.ParseStringArray(value)) {
-                if (GuidUdi.TryParse(piece, out GuidUdi udi)) {
+                if (UdiParser.TryParse(piece, out GuidUdi udi)) {
                     newValues.Add(udi.Guid.ToString("N"));
                     newValues.Add(udi.Guid.ToString("D"));
                 } else {
@@ -205,7 +208,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="key">The key (or alias) of the property holding the block list value.</param>
         /// <param name="newKey">If specified, the value of this parameter will be used for the key of the new field added to the valueset.</param>
         /// <param name="newKeySuffix">If specified, and <paramref name="newKey"/> is not also specified, the value of this parameter will be appended to <paramref name="key"/>, and used for the key of the new field added to the valueset.</param>
-        public static void IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, UmbracoContext umbracoContext, string key, string newKey = null, string newKeySuffix = null) {
+        public static void IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, IUmbracoContext umbracoContext, string key, string newKey = null, string newKeySuffix = null) {
 
             // The ID is numeric, but stored as a string, so we need to parse it
             if (!int.TryParse(e.ValueSet.Id, out int id)) return;
@@ -245,7 +248,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
                 string text = indexingHelper.GetSearchableText(blockList);
                 if (!string.IsNullOrWhiteSpace(text)) e.ValueSet.TryAdd(newKey, text);
             } catch (Exception ex) {
-                logger.Error(typeof(ExamineIndexingExtensions), ex, "Failed indexing block list in property {Property} on page with ID {Id}.", key, content.Id);
+                logger.LogError(ex, "Failed indexing block list in property {Property} on page with ID {Id}.", key, content.Id);
             }
 
         }
