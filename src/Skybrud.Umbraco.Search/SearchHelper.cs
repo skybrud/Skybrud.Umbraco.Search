@@ -30,7 +30,7 @@ namespace Skybrud.Umbraco.Search {
 
         private readonly IExamineManager _examine;
 
-        private readonly ILogger _logger;
+        private readonly ILogger<SearchHelper> _logger;
 
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
@@ -64,7 +64,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="examine">The current Examine manager.</param>
         /// <param name="logger">The current Umbraco logger.</param>
         /// <param name="umbracoContextAccessor">The current Umbraco context accessor.</param>
-        public SearchHelper(IExamineManager examine, ILogger logger, IUmbracoContextAccessor umbracoContextAccessor) {
+        public SearchHelper(IExamineManager examine, ILogger<SearchHelper> logger, IUmbracoContextAccessor umbracoContextAccessor) {
             _examine = examine;
             _logger = logger;
             _umbracoContextAccessor = umbracoContextAccessor;
