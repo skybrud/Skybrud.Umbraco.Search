@@ -414,7 +414,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="key">The key of the field.</param>
         /// <returns>An instance of <see cref="DateTime"/>.</returns>
         public virtual DateTime GetSortValueByDateTime(ISearchResult result, string key) {
-            return SearchUtils.Sorting.GetSortValueByDateTime(result, key);
+            return SearchUtils.Sorting.GetSortValueByDateTime(result, key, _logger);
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="result">The result.</param>
         /// <returns>An instance of <see cref="DateTime"/>.</returns>
         public virtual DateTime GetSortValueByContentDate(ISearchResult result) {
-            return SearchUtils.Sorting.GetSortValueByContentDate(result);
+            return SearchUtils.Sorting.GetSortValueByContentDate(result, _logger);
         }
 
         /// <summary>
