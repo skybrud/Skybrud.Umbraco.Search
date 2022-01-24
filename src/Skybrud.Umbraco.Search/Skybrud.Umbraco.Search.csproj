@@ -6,11 +6,11 @@
 
   <PropertyGroup>
     <RootNamespace>Skybrud.Umbraco.Search</RootNamespace>
-    <Version>3.0.0-beta012</Version>
+    <Version>3.0.0-beta013</Version>
     <Company>Limbo</Company>
     <Product>Skybrud.Umbraco.Search</Product>
     <Authors>Anders Bjerner</Authors>
-    <Copyright>Copyright © 2021</Copyright>
+    <Copyright>Copyright © 2022</Copyright>
     <Description>Search package for Umbraco 8.</Description>
   </PropertyGroup>
 
