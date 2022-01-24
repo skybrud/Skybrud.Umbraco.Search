@@ -156,7 +156,7 @@ namespace Skybrud.Umbraco.Search {
             results = allResults;
 
             // If "options" implements the interface, results are sorted using the "Sort" method
-            if (options is IPostSortOptions postSort) results = postSort.Sort(results);
+            if (options is IPostSortOptions postSort) results = postSort.Sort(results, _logger);
 
             // If "options" implements implement the interface, the results are paginated
             if (options is IOffsetOptions offset) results = results.Skip(offset.Offset).Take(offset.Limit);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Examine;
+using Microsoft.Extensions.Logging;
 
 namespace Skybrud.Umbraco.Search.Options.Sorting {
 
@@ -8,7 +9,7 @@ namespace Skybrud.Umbraco.Search.Options.Sorting {
     /// </summary>
     public interface IPostSortOptions : ISearchOptions {
 
-        IEnumerable<ISearchResult> Sort(IEnumerable<ISearchResult> results);
+        IEnumerable<ISearchResult> Sort(IEnumerable<ISearchResult> results, ILogger logger);
 
     }
 
