@@ -8,8 +8,8 @@ namespace Skybrud.Umbraco.Search.Composers {
     public class SearchComposer : IComposer {
 
         public void Compose(IUmbracoBuilder builder) {
-            builder.Services.AddScoped<ISearchHelper, SearchHelper>();
-            builder.Services.AddScoped<IIndexingHelper, IndexingHelper>();
+            builder.Services.AddTransient<ISearchHelper, SearchHelper>();
+            builder.Services.AddTransient<IIndexingHelper, IndexingHelper>();
         }
     }
 
