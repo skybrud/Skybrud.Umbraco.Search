@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Models.Groups;
-using System;
 
 namespace Skybrud.Umbraco.Search.Options.Groups {
 

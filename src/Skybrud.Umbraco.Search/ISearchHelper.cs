@@ -1,9 +1,9 @@
-﻿using Examine;
+﻿using System;
+using Examine;
 using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
-using System;
 using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search {

@@ -1,11 +1,11 @@
-﻿using Examine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Examine;
 using Microsoft.Extensions.Logging;
 using Skybrud.Essentials.Strings;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Indexing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;

@@ -24,7 +24,7 @@ namespace Skybrud.Umbraco.Search {
             //public static DateTime GetSortValueByDateTime(ISearchResult result, string propertyAlias) {
             //    return GetSortValueByDateTime(result, propertyAlias, Current.Logger);
             //}
-            
+
             /// <summary>
             /// Returns a <see cref="DateTime"/> value parsed from the property with specified
             /// <paramref name="propertyAlias"/>. If the property doesn't have a value, or it's value cannot be parsed,
@@ -38,13 +38,13 @@ namespace Skybrud.Umbraco.Search {
 
                 // Get the first string value from the result
                 string value = result.GetValues(propertyAlias)?.FirstOrDefault();
-                
+
                 // If we don't have a value, fall back to the item's creation date
                 if (string.IsNullOrWhiteSpace(value)) return GetCreateDate(result);
-                
+
                 // Attempt to parse the value into a DateTime
                 if (DateTime.TryParseExact(value, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt)) return dt;
-                
+
                 // If we reach this point, the value was not in a recognized format, so we write a warning to the log and fall back to the create date
                 logger.LogWarning($"Error trying to convert to DateTime for ISearchResult with id: {result.Id} and propertyAlias: {propertyAlias}");
                 return GetCreateDate(result);

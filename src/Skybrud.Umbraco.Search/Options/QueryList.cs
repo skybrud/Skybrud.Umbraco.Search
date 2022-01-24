@@ -1,7 +1,7 @@
-﻿using Skybrud.Essentials.Strings.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Skybrud.Essentials.Strings.Extensions;
 
 namespace Skybrud.Umbraco.Search.Options {
 

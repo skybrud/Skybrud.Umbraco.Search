@@ -1,6 +1,6 @@
-﻿using Examine;
+﻿using System.Collections.Generic;
+using Examine;
 using Examine.Search;
-using System.Collections.Generic;
 
 namespace Skybrud.Umbraco.Search.Options.Sorting {
 

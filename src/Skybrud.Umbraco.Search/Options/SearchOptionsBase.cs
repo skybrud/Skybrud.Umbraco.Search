@@ -1,10 +1,10 @@
-﻿using Examine;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Examine;
 using Examine.Search;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Options.Fields;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Skybrud.Umbraco.Search.Options {
 

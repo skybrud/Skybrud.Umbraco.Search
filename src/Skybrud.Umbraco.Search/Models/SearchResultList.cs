@@ -1,8 +1,8 @@
-﻿using Examine;
+﻿using System.Collections.Generic;
+using Examine;
 using Examine.Search;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
-using System.Collections.Generic;
 
 namespace Skybrud.Umbraco.Search.Models {
 

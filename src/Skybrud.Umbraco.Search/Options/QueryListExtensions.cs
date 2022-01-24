@@ -1,7 +1,7 @@
-﻿using Skybrud.Umbraco.Search.Constants;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Skybrud.Umbraco.Search.Constants;
 
 namespace Skybrud.Umbraco.Search.Options {
 

@@ -1,6 +1,6 @@
-﻿using Examine;
-using System;
+﻿using System;
 using System.Linq;
+using Examine;
 
 namespace Skybrud.Umbraco.Search.Options.Fields.Conditions {
 
