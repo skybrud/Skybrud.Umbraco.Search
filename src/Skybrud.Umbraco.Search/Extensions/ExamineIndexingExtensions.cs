@@ -302,7 +302,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
             e.ValueSet.Values.TryGetValue(ExamineConstants.Fields.Path, out List<object> objList);
             int[] ids = StringUtils.ParseInt32Array(objList?.FirstOrDefault()?.ToString());
 
-            if (ids.Any(ignoreIds.Contains)) {
+            if (ignoreIds != null && ids.Any(ignoreIds.Contains)) {
                 e.ValueSet.Set(ExamineConstants.Fields.HideFromSearch, "1");
                 return;
             }
