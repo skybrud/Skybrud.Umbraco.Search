@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Skybrud.Essentials.Strings.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Skybrud.Essentials.Strings.Extensions;
 
 namespace Skybrud.Umbraco.Search.Options {
 
@@ -14,7 +14,7 @@ namespace Skybrud.Umbraco.Search.Options {
         /// Internal list for building up the query list.
         /// </summary>
         protected readonly List<object> List;
-        
+
         /// <summary>
         /// Gets the type of the list.
         /// </summary>
@@ -33,7 +33,7 @@ namespace Skybrud.Umbraco.Search.Options {
             Type = type;
             List = new List<object>();
         }
-        
+
         /// <summary>
         /// Returns a raw query based on this query list.
         /// </summary>

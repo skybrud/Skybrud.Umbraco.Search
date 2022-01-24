@@ -2,7 +2,7 @@
 using System.Text;
 
 namespace Skybrud.Umbraco.Search.Indexing {
-    
+
     /// <summary>
     /// Static class with extension methods for <see cref="ISearchableText"/>.
     /// </summary>

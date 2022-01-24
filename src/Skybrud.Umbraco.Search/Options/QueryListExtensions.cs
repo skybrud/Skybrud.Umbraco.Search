@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Skybrud.Umbraco.Search.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Skybrud.Umbraco.Search.Constants;
 
 namespace Skybrud.Umbraco.Search.Options {
 
@@ -22,7 +22,7 @@ namespace Skybrud.Umbraco.Search.Options {
             list?.Add($"{ExamineConstants.Fields.NodeTypeAlias}:{nodeTypeAlias}");
             return list;
         }
-        
+
         /// <summary>
         /// Appends a new OR query for matching one of the specified <paramref name="nodeTypeAliases"/>.
         /// </summary>
@@ -35,7 +35,7 @@ namespace Skybrud.Umbraco.Search.Options {
             list?.Add($"{ExamineConstants.Fields.NodeTypeAlias}:({string.Join(" ", nodeTypeAliases)})");
             return list;
         }
-        
+
         /// <summary>
         /// Appends a new OR query for matching one of the specified <paramref name="nodeTypeAliases"/>.
         /// </summary>
@@ -46,7 +46,7 @@ namespace Skybrud.Umbraco.Search.Options {
         public static T AppendNodeTypeAliases<T>(this T list, IEnumerable<string> nodeTypeAliases) where T : QueryList {
             return nodeTypeAliases == null ? list : AppendNodeTypeAliases(list, nodeTypeAliases.ToArray());
         }
-        
+
         /// <summary>
         /// Appends a new OR query for matching one of the specified <paramref name="contentTypes"/>.
         /// </summary>
@@ -95,7 +95,7 @@ namespace Skybrud.Umbraco.Search.Options {
             list?.Add($"{ExamineConstants.Fields.PathSearch}:({string.Join(" ", from id in ancestorIds select id)})");
             return list;
         }
-        
+
         /// <summary>
         /// Appends a new OR query requiring that returned results are a descendant or equal to at least one of the nodes matching the specified <paramref name="ancestorIds"/>.
         /// </summary>

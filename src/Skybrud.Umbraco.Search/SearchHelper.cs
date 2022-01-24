@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Web;
-using Examine;
+﻿using Examine;
 using Examine.Search;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Skybrud.Essentials.Collections;
-using Skybrud.Essentials.Strings.Extensions;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
 using Skybrud.Umbraco.Search.Options.Pagination;
 using Skybrud.Umbraco.Search.Options.Sorting;
-using Umbraco.Core;
-using Umbraco.Core.Logging;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Web;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Web;
+using Umbraco.Extensions;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -31,7 +30,7 @@ namespace Skybrud.Umbraco.Search {
 
         private readonly IExamineManager _examine;
 
-        private readonly ILogger _logger;
+        private readonly ILogger<SearchHelper> _logger;
 
         private readonly IUmbracoContextAccessor _umbracoContextAccessor;
 
@@ -65,7 +64,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="examine">The current Examine manager.</param>
         /// <param name="logger">The current Umbraco logger.</param>
         /// <param name="umbracoContextAccessor">The current Umbraco context accessor.</param>
-        public SearchHelper(IExamineManager examine, ILogger logger, IUmbracoContextAccessor umbracoContextAccessor) {
+        public SearchHelper(IExamineManager examine, ILogger<SearchHelper> logger, IUmbracoContextAccessor umbracoContextAccessor) {
             _examine = examine;
             _logger = logger;
             _umbracoContextAccessor = umbracoContextAccessor;
@@ -83,10 +82,10 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="results">The results of the search.</param>
         /// <param name="total">The total amount of results returned by the search.</param>
         protected virtual void Execute(IBooleanOperation operation, ISortOptions sortOptions, out IEnumerable<ISearchResult> results, out long total) {
-            
+
             // Cast the boolean operation to IQueryExecutor
             IQueryExecutor executor = operation;
-            
+
             // If "SortField" doesn't specified, we don't apply any sorting
             if (!string.IsNullOrWhiteSpace(sortOptions.SortField)) {
 
@@ -110,7 +109,7 @@ namespace Skybrud.Umbraco.Search {
             if (sortOptions is IOffsetOptions offset) {
 
                 ISearchResults allResults = executor.Execute();
-                    
+
                 // Update the total amount of results
                 total = allResults.TotalItemCount;
 
@@ -122,8 +121,9 @@ namespace Skybrud.Umbraco.Search {
             } else {
 
                 // Since no offset or limit is specified, we request all results
-                ISearchResults allResults = executor.Execute(int.MaxValue);
-                    
+                var queryOptions = new QueryOptions(0, int.MaxValue);
+                ISearchResults allResults = executor.Execute(queryOptions);
+
                 // Update the total amount of results
                 total = allResults.TotalItemCount;
 
@@ -133,7 +133,7 @@ namespace Skybrud.Umbraco.Search {
             }
 
         }
-        
+
         /// <summary>
         /// Performs a search using the specified <paramref name="options"/>.
         /// </summary>
@@ -142,12 +142,13 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="results">The results of the search.</param>
         /// <param name="total">The total amount of results returned by the search.</param>
         protected virtual void Execute(IBooleanOperation operation, ISearchOptions options, out IEnumerable<ISearchResult> results, out long total) {
-            
+
             // Cast the boolean operation to IQueryExecutor
             IQueryExecutor executor = operation;
- 
+
             // Start the search in Examine
-            ISearchResults allResults = executor.Execute(int.MaxValue);
+            var queryOptions = new QueryOptions(0, int.MaxValue);
+            ISearchResults allResults = executor.Execute(queryOptions);
 
             // Update the total amount of results
             total = allResults.TotalItemCount;
@@ -177,10 +178,10 @@ namespace Skybrud.Umbraco.Search {
 
             // Create a new Examine query
             IQuery query = CreateQuery(searcher, options);
-            
+
             // Get the boolean operation via the options class
             IBooleanOperation operation = options.GetBooleanOperation(this, searcher, query);
-            
+
             // Declare some variables
             long total;
             IEnumerable<ISearchResult> results;
@@ -198,13 +199,13 @@ namespace Skybrud.Umbraco.Search {
                 default:
                     Execute(operation, options, out results, out total);
                     break;
-                
+
             }
-            
+
             sw.Stop();
 
             if (options is IDebugSearchOptions debug && debug.IsDebug) {
-                _logger.Debug<SearchHelper>("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
+                _logger.LogDebug("Search of type {Type} completed in {Milliseconds} with {Query}", options.GetType().FullName, sw.ElapsedMilliseconds, query);
             }
 
             // Wrap the results
@@ -222,7 +223,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="callback">A callback used for converting an <see cref="ISearchResult"/> to <typeparamref name="TItem"/>.</param>
         /// <returns>An instance of <see cref="SearchResultList{TItem}"/> representing the result of the search.</returns>
         public virtual SearchResultList<TItem> Search<TItem>(ISearchOptions options, Func<ISearchResult, TItem> callback) {
-            
+
             // Make the search in Examine
             SearchResultList results = Search(options);
 
@@ -302,20 +303,23 @@ namespace Skybrud.Umbraco.Search {
         protected virtual IPublishedContent GetPublishedContentFromResult(ISearchResult result) {
 
             string indexType = result.GetValues("__IndexType").FirstOrDefault();
+            if (_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext)) {
+                switch (indexType) {
 
-            switch (indexType) {
+                    case "content":
+                        return umbracoContext.Content.GetById(int.Parse(result.Id));
 
-                case "content":
-                    return _umbracoContextAccessor.UmbracoContext.Content.GetById(int.Parse(result.Id));
+                    case "media":
+                    case "pdf":
+                        return umbracoContext.Media.GetById(int.Parse(result.Id));
 
-                case "media":
-                case "pdf":
-                    return _umbracoContextAccessor.UmbracoContext.Media.GetById(int.Parse(result.Id));
+                    default:
+                        return null;
 
-                default:
-                    return null;
-
+                }
             }
+            _logger.LogError("Failed to get Umbraco context");
+            return null;
 
         }
 
@@ -325,18 +329,24 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="request">The request the search should be based on.</param>
         /// <param name="groups">An array of groups to used for the search.</param>
         /// <returns>An instance of <see cref="GroupedSearchResult"/>.</returns>
-        public virtual GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups) {
+        public virtual GroupedSearchResult Search(HttpRequest request, SearchGroup[] groups) {
 
-            int[] selectedGroups = request.QueryString["groups"].ToInt32Array();
+            if (request.Query.TryGetValue("groups", out var selectedGroupsRawValue)) {
+                var selectedGroups = selectedGroupsRawValue.TryConvertTo<int[]>();
 
-            IEnumerable<SearchGroupResultList> result = (
-                from x in groups
-                where selectedGroups.Length == 0 || selectedGroups.Contains(x.Id)
-                select x?.Callback(x, request, null)
-            );
+                if (selectedGroups.Success) {
+                    IEnumerable<SearchGroupResultList> result = (
+                        from x in groups
+                        where selectedGroups.Result.Length == 0 || selectedGroups.Result.Contains(x.Id)
+                        select x?.Callback(x, request, null)
+                    );
 
-            return new GroupedSearchResult(result);
+                    return new GroupedSearchResult(result);
+                }
+            }
 
+            _logger.LogError("Groups not found in request");
+            return null;
         }
 
         /// <summary>
@@ -347,7 +357,7 @@ namespace Skybrud.Umbraco.Search {
         public virtual string ReplaceDiacritics(string input) {
 
             // See: http://www.levibotelho.com/development/c-remove-diacritics-accents-from-a-string/
-            
+
             string normalizedString = input.Normalize(NormalizationForm.FormD);
 
             StringBuilder sb = new StringBuilder();
@@ -370,7 +380,7 @@ namespace Skybrud.Umbraco.Search {
             return sb.ToString().Normalize(NormalizationForm.FormC);
 
         }
-        
+
         /// <summary>
         /// Removes diacritics in the specified <paramref name="input"/> string.
         /// </summary>
@@ -379,7 +389,7 @@ namespace Skybrud.Umbraco.Search {
         public virtual string RemoveDiacritics(string input) {
 
             // See: http://www.levibotelho.com/development/c-remove-diacritics-accents-from-a-string/
-            
+
             string normalizedString = input.Normalize(NormalizationForm.FormD);
 
             StringBuilder sb = new StringBuilder();
@@ -404,7 +414,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="key">The key of the field.</param>
         /// <returns>An instance of <see cref="DateTime"/>.</returns>
         public virtual DateTime GetSortValueByDateTime(ISearchResult result, string key) {
-            return SearchUtils.Sorting.GetSortValueByDateTime(result, key);
+            return SearchUtils.Sorting.GetSortValueByDateTime(result, key, _logger);
         }
 
         /// <summary>
@@ -413,7 +423,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="result">The result.</param>
         /// <returns>An instance of <see cref="DateTime"/>.</returns>
         public virtual DateTime GetSortValueByContentDate(ISearchResult result) {
-            return SearchUtils.Sorting.GetSortValueByContentDate(result);
+            return SearchUtils.Sorting.GetSortValueByContentDate(result, _logger);
         }
 
         /// <summary>
@@ -441,13 +451,13 @@ namespace Skybrud.Umbraco.Search {
 
                 default:
                     if (_examine.TryGetIndex(ExamineConstants.ExternalIndexName, out IIndex index)) {
-                        searcher = index.GetSearcher();
+                        searcher = index.Searcher;
                         if (searcher != null) return searcher;
                     }
                     break;
 
             }
-            
+
             throw new Exception($"Failed determining searcher from {options.GetType()}");
 
         }

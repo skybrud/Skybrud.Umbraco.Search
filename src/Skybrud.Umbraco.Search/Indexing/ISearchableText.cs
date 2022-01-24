@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
 namespace Skybrud.Umbraco.Search.Indexing {
-    
+
     /// <summary>
     /// Interfaces describing a <see cref="WriteSearchableText"/> method.
     /// </summary>

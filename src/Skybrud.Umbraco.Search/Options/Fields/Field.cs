@@ -1,7 +1,7 @@
 ﻿namespace Skybrud.Umbraco.Search.Options.Fields {
 
     public class Field {
-        
+
         #region Properties
 
         /// <summary>

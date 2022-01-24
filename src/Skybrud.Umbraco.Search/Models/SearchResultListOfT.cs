@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Examine.Search;
+﻿using Examine.Search;
 using Skybrud.Umbraco.Search.Options;
+using System.Collections.Generic;
 
 namespace Skybrud.Umbraco.Search.Models {
 

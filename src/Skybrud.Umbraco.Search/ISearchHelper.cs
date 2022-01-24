@@ -1,13 +1,13 @@
-﻿using System;
-using System.Web;
-using Examine;
+﻿using Examine;
+using Microsoft.AspNetCore.Http;
 using Skybrud.Umbraco.Search.Models;
 using Skybrud.Umbraco.Search.Models.Groups;
 using Skybrud.Umbraco.Search.Options;
-using Umbraco.Core.Models.PublishedContent;
+using System;
+using Umbraco.Cms.Core.Models.PublishedContent;
 
 namespace Skybrud.Umbraco.Search {
-    
+
     /// <summary>
     /// Interface describing a helper class for making Examine searches. See the <see cref="SearchHelper"/> class for a concrete implementation.
     /// </summary>
@@ -59,7 +59,7 @@ namespace Skybrud.Umbraco.Search {
         /// <param name="request">The request the search should be based on.</param>
         /// <param name="groups">An array of groups to used for the search.</param>
         /// <returns>An instance of <see cref="GroupedSearchResult"/>.</returns>
-        GroupedSearchResult Search(HttpRequestBase request, SearchGroup[] groups);
+        GroupedSearchResult Search(HttpRequest request, SearchGroup[] groups);
 
         /// <summary>
         /// Replaces and removes diacritics in the specified <paramref name="input"/> string.

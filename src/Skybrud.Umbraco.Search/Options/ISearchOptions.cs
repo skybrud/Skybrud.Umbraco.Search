@@ -1,10 +1,10 @@
 ﻿using Examine;
 using Examine.Search;
 
-namespace Skybrud.Umbraco.Search.Options  {
+namespace Skybrud.Umbraco.Search.Options {
 
     public interface ISearchOptions {
-        
+
         /// <summary>
         /// Returns a boolean operator for an Examine search.
         /// </summary>

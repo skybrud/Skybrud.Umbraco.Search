@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Skybrud.Umbraco.Search.Options.Fields;
+using System;
 using System.Text.RegularExpressions;
-using Skybrud.Umbraco.Search.Options.Fields;
 
 namespace Skybrud.Umbraco.Search.Options.Text {
 

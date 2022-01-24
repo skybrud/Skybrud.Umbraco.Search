@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Examine;
+﻿using Examine;
 using Examine.Search;
 using Skybrud.Umbraco.Search.Constants;
 using Skybrud.Umbraco.Search.Options.Fields;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Skybrud.Umbraco.Search.Options {
 
     public class SearchOptionsBase : IGetSearcherOptions, IDebugSearchOptions {
 
         #region Properties
-        
+
         /// <summary>
         /// Gets or sets the text to search for.
         /// </summary>
@@ -45,11 +45,11 @@ namespace Skybrud.Umbraco.Search.Options {
         #endregion
 
         #region Member methods
-        
+
         public virtual ISearcher GetSearcher(IExamineManager examineManager, ISearchHelper searchHelper) {
             return GetSearcherByIndexName(examineManager, searchHelper, ExamineConstants.ExternalIndexName);
         }
-        
+
         public virtual IBooleanOperation GetBooleanOperation(ISearchHelper searchHelper, ISearcher searcher, IQuery query) {
             return query.NativeQuery(string.Join(" AND ", GetQueryList(searchHelper)));
         }
@@ -83,7 +83,7 @@ namespace Skybrud.Umbraco.Search.Options {
 
             string text = Regex.Replace(Text, @"[^\wæøåÆØÅ\-@\. ]", string.Empty).ToLowerInvariant().Trim();
 
-            string[] terms = text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] terms = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (terms.Length == 0) return;
 
             // Fallback if no fields are added
@@ -112,9 +112,9 @@ namespace Skybrud.Umbraco.Search.Options {
             }
 
             // Get the searcher from the index
-            ISearcher searcher = index.GetSearcher();
+            ISearcher searcher = index.Searcher;
             if (searcher == null) throw new Exception("Examine index {indexName} does not specify a searcher.");
-            
+
             // Return the searcher
             return searcher;
 
