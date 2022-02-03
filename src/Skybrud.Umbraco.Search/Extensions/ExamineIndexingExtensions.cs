@@ -10,6 +10,7 @@ using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Infrastructure.Examine;
 using Umbraco.Extensions;
 
 namespace Skybrud.Umbraco.Search.Extensions {
@@ -311,6 +312,41 @@ namespace Skybrud.Umbraco.Search.Extensions {
 
             // create empty value
             e.ValueSet.TryAdd(ExamineConstants.Fields.HideFromSearch, "0");
+
+        }
+
+        /// <summary>
+        /// Adds new fields with lower cased versions of the <c>nodeName</c>, <c>title</c> and <c>teaser</c> fields.
+        /// </summary>
+        /// <param name="e"></param>
+        public static void AddLciFields(this IndexingItemEventArgs e) {
+            AddLciFields(e, "nodeName", "title", "teaser");
+        }
+
+        /// <summary>
+        /// Adds new fields with lower cased versions of the specified <paramref name="fields"/>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="fields">The keys of the fields that should have a lower cased version.</param>
+        public static void AddLciFields(this IndexingItemEventArgs e, params string[] fields) {
+
+            // Skip non-content types
+            if (e.ValueSet.Category != IndexTypes.Content) return;
+
+            foreach (string key in fields) {
+
+                // Calculate the LCI key
+                string lciKey = $"{key}_lci";
+
+                // Skip if the LCI key already exists
+                if (e.ValueSet.Values.ContainsKey(lciKey)) continue;
+
+                // Get each value with "key" and add the lowwer cased versions to a new field
+                foreach (object value in e.ValueSet.GetValues(key)) {
+                    e.ValueSet.Add(lciKey, value.ToString()?.ToLowerInvariant());
+                }
+
+            }
 
         }
 
