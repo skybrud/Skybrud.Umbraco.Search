@@ -38,13 +38,15 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="e"></param>
         /// <param name="key">The key of the field.</param>
         /// <param name="value">The new value.</param>
-        public static void AddDefaultValue(this IndexingItemEventArgs e, string key, string value) {
+        public static IndexingItemEventArgs AddDefaultValue(this IndexingItemEventArgs e, string key, string value) {
 
             // Does the field already exist?
-            if (e.ValueSet.Values.ContainsKey(key)) return;
+            if (e.ValueSet.Values.ContainsKey(key)) return e;
 
             // Add the default value
             e.ValueSet.TryAdd(key, value);
+
+            return e;
 
         }
 
@@ -56,13 +58,15 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="key">The key of the field.</param>
         /// <param name="value">The new value.</param>
         /// <param name="suffix">The suffix for the key of the new field.</param>
-        public static void AddDefaultValue(this IndexingItemEventArgs e, string key, string value, string suffix) {
+        public static IndexingItemEventArgs AddDefaultValue(this IndexingItemEventArgs e, string key, string value, string suffix) {
 
             // Does the field already exist?
-            if (e.ValueSet.Values.ContainsKey(key)) return;
+            if (e.ValueSet.Values.ContainsKey(key)) return e;
 
             // Add the default value
             e.ValueSet.TryAdd($"{key}{suffix}", value);
+
+            return e;
 
         }
 
@@ -75,16 +79,18 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e">The event arguments about the node being indexed.</param>
         /// <param name="key">The key of the field to make searchable.</param>
-        public static void IndexCsv(this IndexingItemEventArgs e, string key) {
+        public static IndexingItemEventArgs IndexCsv(this IndexingItemEventArgs e, string key) {
 
             // Attempt to get the values of the specified field
-            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
+            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return e;
 
             // Get the first value and replace all commas with an empty space
             string value = values.FirstOrDefault()?.ToString()?.Replace(',', ' ');
 
             // Added the searchable value to the index
             e.ValueSet.TryAdd($"{key}_search", value);
+
+            return e;
 
         }
 
@@ -101,10 +107,10 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e">The event arguments about the node being indexed.</param>
         /// <param name="key">The key of the field to make searchable.</param>
-        public static void IndexUdis(this IndexingItemEventArgs e, string key) {
+        public static IndexingItemEventArgs IndexUdis(this IndexingItemEventArgs e, string key) {
 
             // Attempt to get the values of the specified field
-            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
+            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return e;
 
             // Get the first value of the field
             string value = values.FirstOrDefault()?.ToString();
@@ -123,6 +129,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
             // Added the searchable value to the index
             e.ValueSet.TryAdd($"{key}_search", string.Join(" ", newValues));
 
+            return e;
+
         }
 
         /// <summary>
@@ -133,8 +141,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="key">The key of the field.</param>
-        public static void IndexDate(this IndexingItemEventArgs e, string key) {
-            IndexDate(e, key, "yyyyMMddHHmm00000");
+        public static IndexingItemEventArgs IndexDate(this IndexingItemEventArgs e, string key) {
+            return IndexDate(e, key, "yyyyMMddHHmm00000");
         }
 
         /// <summary>
@@ -146,10 +154,10 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="e"></param>
         /// <param name="key">The key of the field.</param>
         /// <param name="format">The format that should be used when adding the date to the value set.</param>
-        public static void IndexDate(this IndexingItemEventArgs e, string key, string format) {
+        public static IndexingItemEventArgs IndexDate(this IndexingItemEventArgs e, string key, string format) {
 
             // Attempt to get the values of the specified field
-            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
+            if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return e;
 
             // Get the first value of the field
             switch (values.FirstOrDefault()) {
@@ -163,6 +171,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
 
             }
 
+            return e;
+
         }
 
         /// <summary>
@@ -175,16 +185,16 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="key">The key (or alias) of the property holding the block list value.</param>
         /// <param name="newKey">If specified, the value of this parameter will be used for the key of the new field added to the valueset.</param>
         /// <param name="newKeySuffix">If specified, and <paramref name="newKey"/> is not also specified, the value of this parameter will be appended to <paramref name="key"/>, and used for the key of the new field added to the valueset.</param>
-        public static void IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, IUmbracoContext umbracoContext, string key, string newKey = null, string newKeySuffix = null) {
+        public static IndexingItemEventArgs IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, IUmbracoContext umbracoContext, string key, string newKey = null, string newKeySuffix = null) {
 
             // The ID is numeric, but stored as a string, so we need to parse it
-            if (!int.TryParse(e.ValueSet.Id, out int id)) return;
+            if (!int.TryParse(e.ValueSet.Id, out int id)) return e;
 
             // Look up the content node in the content cache
             IPublishedContent content = umbracoContext.Content.GetById(id);
 
             // Call the method overload to handle the rest
-            IndexBlockList(e, logger, indexingHelper, content, key, newKey, newKeySuffix);
+            return IndexBlockList(e, logger, indexingHelper, content, key, newKey, newKeySuffix);
 
         }
 
@@ -198,14 +208,14 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <param name="key">The key (or alias) of the property holding the block list value.</param>
         /// <param name="newKey">If specified, the value of this parameter will be used for the key of the new field added to the valueset.</param>
         /// <param name="newKeySuffix">If specified, and <paramref name="newKey"/> is not also specified, the value of this parameter will be appended to <paramref name="key"/>, and used for the key of the new field added to the valueset.</param>
-        public static void IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, IPublishedContent content, string key, string newKey = null, string newKeySuffix = null) {
+        public static IndexingItemEventArgs IndexBlockList(this IndexingItemEventArgs e, ILogger logger, IIndexingHelper indexingHelper, IPublishedContent content, string key, string newKey = null, string newKeySuffix = null) {
 
             // Validate the content and the property
-            if (content == null || !content.HasProperty(key)) return;
+            if (content == null || !content.HasProperty(key)) return e;
 
             // Get the block list
             BlockListModel blockList = content.Value<BlockListModel>(key);
-            if (blockList == null) return;
+            if (blockList == null) return e;
 
             // Determine the new key
             newKey = newKey ?? $"{key}{newKeySuffix ?? "_search"}";
@@ -218,14 +228,16 @@ namespace Skybrud.Umbraco.Search.Extensions {
                 logger.LogError(ex, "Failed indexing block list in property {Property} on page with ID {Id}.", key, content.Id);
             }
 
+            return e;
+
         }
 
         /// <summary>
         /// Adds a new <c>hideFromSearch</c> field to the valueset indicating whether the node should be hidden (excluded) from search results.
         /// </summary>
         /// <param name="e"></param>
-        public static void AddHideFromSearch(this IndexingItemEventArgs e) {
-            AddHideFromSearch(e, default(HashSet<int>));
+        public static IndexingItemEventArgs AddHideFromSearch(this IndexingItemEventArgs e) {
+            return AddHideFromSearch(e, default(HashSet<int>));
         }
 
         /// <summary>
@@ -238,8 +250,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="ignoreId">The ID for which the node itself and it's descendants should be hidden.</param>
-        public static void AddHideFromSearch(this IndexingItemEventArgs e, int ignoreId) {
-            AddHideFromSearch(e, new HashSet<int> { ignoreId });
+        public static IndexingItemEventArgs AddHideFromSearch(this IndexingItemEventArgs e, int ignoreId) {
+            return AddHideFromSearch(e, new HashSet<int> { ignoreId });
         }
 
         /// <summary>
@@ -252,8 +264,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="ignoreIds">The IDs for which it self and it's descendants should be hidden.</param>
-        public static void AddHideFromSearch(this IndexingItemEventArgs e, params int[] ignoreIds) {
-            AddHideFromSearch(e, new HashSet<int>(ignoreIds));
+        public static IndexingItemEventArgs AddHideFromSearch(this IndexingItemEventArgs e, params int[] ignoreIds) {
+            return AddHideFromSearch(e, new HashSet<int>(ignoreIds));
         }
 
         /// <summary>
@@ -266,20 +278,22 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="ignoreIds">The IDs for which it self and it's descendants should be hidden.</param>
-        public static void AddHideFromSearch(this IndexingItemEventArgs e, HashSet<int> ignoreIds) {
+        public static IndexingItemEventArgs AddHideFromSearch(this IndexingItemEventArgs e, HashSet<int> ignoreIds) {
 
             e.ValueSet.Values.TryGetValue(ExamineConstants.Fields.Path, out List<object> objList);
             int[] ids = StringUtils.ParseInt32Array(objList?.FirstOrDefault()?.ToString());
 
             if (ignoreIds != null && ids.Any(ignoreIds.Contains)) {
                 e.ValueSet.Set(ExamineConstants.Fields.HideFromSearch, "1");
-                return;
+                return e;
             }
 
-            if (e.ValueSet.Values.ContainsKey(ExamineConstants.Fields.HideFromSearch)) return;
+            if (e.ValueSet.Values.ContainsKey(ExamineConstants.Fields.HideFromSearch)) return e;
 
             // create empty value
             e.ValueSet.TryAdd(ExamineConstants.Fields.HideFromSearch, "0");
+
+            return e;
 
         }
 
@@ -287,8 +301,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// Adds new fields with lower cased versions of the <c>nodeName</c>, <c>title</c> and <c>teaser</c> fields.
         /// </summary>
         /// <param name="e"></param>
-        public static void AddLciFields(this IndexingItemEventArgs e) {
-            AddLciFields(e, "nodeName", "title", "teaser");
+        public static IndexingItemEventArgs AddLciFields(this IndexingItemEventArgs e) {
+            return AddLciFields(e, "nodeName", "title", "teaser");
         }
 
         /// <summary>
@@ -296,10 +310,10 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// </summary>
         /// <param name="e"></param>
         /// <param name="fields">The keys of the fields that should have a lower cased version.</param>
-        public static void AddLciFields(this IndexingItemEventArgs e, params string[] fields) {
+        public static IndexingItemEventArgs AddLciFields(this IndexingItemEventArgs e, params string[] fields) {
 
             // Skip non-content types
-            if (e.ValueSet.Category != IndexTypes.Content) return;
+            if (e.ValueSet.Category != IndexTypes.Content) return e;
 
             foreach (string key in fields) {
 
@@ -315,6 +329,8 @@ namespace Skybrud.Umbraco.Search.Extensions {
                 }
 
             }
+
+            return e;
 
         }
 
