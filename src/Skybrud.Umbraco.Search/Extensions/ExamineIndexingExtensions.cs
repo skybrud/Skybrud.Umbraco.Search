@@ -113,7 +113,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
             if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return;
 
             // Get the first value and replace all commas with an empty space
-            string value = values.FirstOrDefault()?.ToString().Replace(',', ' ');
+            string value = values.FirstOrDefault()?.ToString()?.Replace(',', ' ');
 
             // Added the searchable value to the index
             e.ValueSet.TryAdd($"{key}_search", value);
