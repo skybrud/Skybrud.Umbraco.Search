@@ -136,7 +136,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// <summary>
         /// Adds a searchable version of the date value in the field with the specified <paramref name="key"/>.
         ///
-        /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (at it enables
+        /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (as it enables
         /// a ranged query) and the value will be formatted using <c>yyyyMMddHHmm00000</c>.
         /// </summary>
         /// <param name="e"></param>
@@ -146,15 +146,29 @@ namespace Skybrud.Umbraco.Search.Extensions {
         }
 
         /// <summary>
+        /// Adds searchable versions of the date values in the fields with the specified <paramref name="keys"/>.
+        ///
+        /// The searchable values will be added in new fields using the <c>_range</c> prefix for the keys (as it enables
+        /// a ranged query) and the value will be formatted using <c>yyyyMMddHHmm00000</c>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="keys">The keys of the fields.</param>
+        public static IndexingItemEventArgs IndexDate(this IndexingItemEventArgs e, params string[] keys) {
+            if (keys == null) return null;
+            foreach (string key in keys) IndexDate(e, key);
+            return e;
+        }
+
+        /// <summary>
         /// Adds a searchable version of the date value in the field with the specified <paramref name="key"/>.
         /// 
         /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (at it enables
         /// a ranged query) and the value will be formatted using the specified <paramref name="format"/>.
         /// </summary>
         /// <param name="e"></param>
-        /// <param name="key">The key of the field.</param>
         /// <param name="format">The format that should be used when adding the date to the value set.</param>
-        public static IndexingItemEventArgs IndexDate(this IndexingItemEventArgs e, string key, string format) {
+        /// <param name="key">The key of the field.</param>
+        public static IndexingItemEventArgs IndexDateWithFormat(this IndexingItemEventArgs e, string format, string key) {
 
             // Attempt to get the values of the specified field
             if (!e.ValueSet.Values.TryGetValue(key, out List<object> values)) return e;
