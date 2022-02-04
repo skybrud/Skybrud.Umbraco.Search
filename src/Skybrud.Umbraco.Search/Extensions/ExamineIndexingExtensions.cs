@@ -301,7 +301,7 @@ namespace Skybrud.Umbraco.Search.Extensions {
         /// Adds new fields with lower cased versions of the <c>nodeName</c>, <c>title</c> and <c>teaser</c> fields.
         /// </summary>
         /// <param name="e"></param>
-        public static IndexingItemEventArgs AddLciFields(this IndexingItemEventArgs e) {
+        public static IndexingItemEventArgs AddDefaultLciFields(this IndexingItemEventArgs e) {
             return AddLciFields(e, "nodeName", "title", "teaser");
         }
 
