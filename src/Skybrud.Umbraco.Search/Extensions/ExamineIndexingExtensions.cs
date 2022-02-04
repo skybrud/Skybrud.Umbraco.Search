@@ -95,6 +95,21 @@ namespace Skybrud.Umbraco.Search.Extensions {
         }
 
         /// <summary>
+        /// Adds new, searchable fields for the fields matching the specified <paramref name="keys"/>.
+        ///
+        /// For each field, if a value if found, any commas in the value will be replaced with spaces, and the value
+        /// will be added to a new field  <c>_search</c> as suffix - eg. if field key is <c>path</c>, the new field
+        /// will have the key <c>path_search</c>.
+        /// </summary>
+        /// <param name="e">The event arguments about the node being indexed.</param>
+        /// <param name="keys">Thed key of the fields to make searchable.</param>
+        public static IndexingItemEventArgs IndexCsv(this IndexingItemEventArgs e, params string[] keys) {
+            if (keys == null) return null;
+            foreach (string key in keys) IndexCsv(e, key);
+            return e;
+        }
+
+        /// <summary>
         /// Parses the UDIs in the field with the specified <paramref name="key"/>, and adds a new field with
         /// searchable versions of the UDIs.
         ///
