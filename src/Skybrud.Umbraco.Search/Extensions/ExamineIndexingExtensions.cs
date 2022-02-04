@@ -149,6 +149,26 @@ namespace Skybrud.Umbraco.Search.Extensions {
         }
 
         /// <summary>
+        /// Parses the UDIs in the fields matching the specified <paramref name="keys"/>, and adds new fields with
+        /// searchable versions of the UDIs.
+        /// 
+        /// Specifically the method will look for any GUID based UDI's, and then format the GUIDs to formats <c>N</c>
+        /// and <c>D</c> - that is <c>00000000000000000000000000000000</c> and
+        /// <c>00000000-0000-0000-0000-000000000000</c>. The type of the reference entity is not added to the new fields.
+        /// 
+        /// The key of the news fields will use <c>_search</c> as suffix - eg. if the key of a field is
+        /// <c>related</c>, the new field will have the key <c>related_search</c>.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public static IndexingItemEventArgs IndexUdis(this IndexingItemEventArgs e, params string[] keys) {
+            if (keys == null) return null;
+            foreach (string key in keys) IndexUdis(e, key);
+            return e;
+        }
+
+        /// <summary>
         /// Adds a searchable version of the date value in the field with the specified <paramref name="key"/>.
         ///
         /// The searchable value will be added in a new field using the <c>_range</c> prefix for the key (as it enables
